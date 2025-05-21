@@ -1,0 +1,239 @@
+.content-wrapper {
+    width: 100%;
+}
+
+.profile-banner {
+    background: linear-gradient(135deg, #5f76e8 0%, #2f45c0 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+.profile-banner .profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+.profile-banner h1 {
+    color: white;
+    font-weight: 600;
+    font-size: 2.25rem;
+}
+.profile-banner p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+}
+.profile-banner .bi {
+    margin-right: 0.5rem;
+}
+
+.btn-edit-profile {
+    background-color: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.5);
+    color: white;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.btn-edit-profile:hover {
+    background-color: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.8);
+    color: white;
+}
+
+.stats-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+.stats-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+.stats-card:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.4s ease, background-color 0.4s ease;
+}
+.stats-card:hover:before {
+    opacity: 1;
+}
+.stats-card .icon-bg {
+    padding: 0.8rem; 
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    transition: background-color 0.3s ease;
+}
+.stats-card .icon-bg i { font-size: 1.75rem; } 
+
+.stats-card.organizations .icon-bg { background-color: rgba(var(--bs-primary-rgb), 0.12); }
+.stats-card.organizations .icon-bg i { color: var(--bs-primary); }
+.stats-card.organizations:before { background-color: var(--bs-primary); }
+
+.stats-card.events .icon-bg { background-color: rgba(var(--bs-success-rgb), 0.12); }
+.stats-card.events .icon-bg i { color: var(--bs-success); }
+.stats-card.events:before { background-color: var(--bs-success); }
+
+.stats-card.admin-roles .icon-bg { background-color: rgba(var(--bs-info-rgb), 0.12); }
+.stats-card.admin-roles .icon-bg i { color: var(--bs-info); }
+.stats-card.admin-roles:before { background-color: var(--bs-info); }
+
+.stats-card.worked-hours .icon-bg { background-color: rgba(var(--bs-warning-rgb), 0.12); }
+.stats-card.worked-hours .icon-bg i { color: var(--bs-warning); }
+.stats-card.worked-hours:before { background-color: var(--bs-warning); }
+
+.stats-card h5.stat-number {
+    font-weight: 700;
+    font-size: 2rem;
+    color: #1c1e21; 
+}
+.stats-card p.text-muted {
+    font-size: 0.9rem;
+    color: #606770 !important; 
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+.section-header .section-title {
+    font-weight: 600;
+    color: #1c1e21;
+    font-size: 1.6rem;
+    margin-bottom: 0;
+}
+.section-header .section-title i {
+    color: var(--bs-primary);
+    margin-right: 0.6rem;
+    font-size: 1.5rem; 
+}
+
+.card-custom { 
+    background-color: #ffffff;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    border: none;
+}
+.card-custom .card-header {
+    background-color: transparent; 
+    border-bottom: 1px solid #e9ecef; 
+    padding: 1rem 1.25rem;
+}
+
+.hours-table {
+    border-radius: 12px; 
+    overflow: hidden;
+}
+.hours-table thead th {
+    background-color: #f7f7f7; 
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    color: #606770;
+}
+.hours-table tbody tr:hover {
+    background-color: #f0f2f5;
+}
+.hours-table tbody td {
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+    vertical-align: middle;
+}
+.hours-table .table-active td {
+    font-weight: bold;
+    color: #1c1e21;
+}
+
+.org-card { 
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+.org-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+}
+.org-card .card-body { padding: 1.25rem; }
+.org-card .card-title {
+    font-weight: 600;
+    color: var(--bs-primary);
+    margin-bottom: 0.25rem;
+}
+.org-card .text-muted.small { font-size: 0.85rem; margin-bottom: 0.75rem; }
+.org-card .role-badge {
+    font-size: 0.7rem;
+    padding: 0.4em 0.7em;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+.org-card .info-badge { 
+    font-size: 0.8rem;
+    padding: 0.4em 0.75em;
+    background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+    color: var(--bs-primary) !important;
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.2);
+}
+    .org-card .info-badge.hours {
+    background-color: rgba(var(--bs-success-rgb), 0.1) !important;
+    color: var(--bs-success) !important;
+    border: 1px solid rgba(var(--bs-success-rgb), 0.2);
+}
+
+
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+}
+.modal-header {
+    background-color: #f0f2f5;
+    border-bottom: 1px solid #dcdfe3;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+.modal-header .modal-title i {
+    color: var(--bs-primary);
+}
+
+.empty-state-container {
+    background-color: #ffffff;
+    padding: 2.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+.empty-state-container i.display-icon {
+    font-size: 3.5rem;
+    color: #adb5bd;
+}
+.empty-state-container h5 {
+    margin-top: 1.25rem;
+    color: #495057;
+    font-weight: 500;
+}
+.empty-state-container p {
+    color: #6c757d;
+    font-size: 0.95rem;
+}

@@ -1,0 +1,11 @@
+{
+  "type": "commonjs",
+  "dependencies": {
+    "@prettier/plugin-php": "^0.22.4",
+    "hono": "^4.7.5",
+    "prettier": "^3.5.3"
+  }
+}
+
+
+

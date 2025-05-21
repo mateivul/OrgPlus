@@ -1,0 +1,392 @@
+body,
+html {
+    background: #191919;
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+    margin: 0;
+    padding:0;
+}
+
+body > .d-flex {
+    min-height: 100vh;
+}
+
+:root {
+    --bs-primary: #2962b5;
+    --bs-blue: #1C437D;
+    --bs-btn-bg: #2962b5;
+    --surface1: #191919;
+    --surface2: #242a30;
+    --surface3: #3b444c;
+    --radius: 8px;
+    --text-color: #dee2e6;
+}
+
+
+
+/* bootstrap overrides */
+
+
+.btn-primary:hover,
+.bg-primary:hover {
+    background-color: var(--bs-blue) !important;
+}
+.btn-secondary {
+    color: #191919;
+    border: 1px solid #191919;
+    background-color: transparent;
+}
+.text-primary, .form-label, .btn-primary, .btn-outline-secondary, .link-underline {
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+.card-title {
+    margin-bottom: 16px;
+}
+.form-label {
+    margin-bottom: 0.2rem;
+}
+.link-underline {
+    color: #2962b5;
+}
+/* .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+} */
+.mb-3 {
+    margin-bottom: 16px;
+}
+
+/* ------------------- */
+
+h2, h3, h4, h6 {
+    color: white;
+}
+.account-form-container {
+    width: 350px;
+    padding-top: 10vh;
+}
+
+.org-form-container {
+    width: 500px;
+    padding-top: 6vh;
+}
+
+.sidebar {
+    /* height: 100vh; */
+    box-sizing: border-box;
+    flex-shrink: 0;
+    background-color: #242a30;
+    color: white;
+    padding: 15px;
+}
+
+
+.sidebar .nav-link {
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #495057;
+}
+
+.sidebar .nav-link i {
+    margin-right: 10px;
+}
+
+.sidebar hr {
+    border-color: #6c757d;
+}
+
+.btn-process {
+    transition: all 0.3s;
+}
+.btn-process:disabled {
+    opacity: 0.6;
+}
+.bg-pending { background-color: #6c757d !important; }
+.bg-accepted { background-color: rgba(25, 135, 84, 0.2) !important; }
+.bg-rejected { background-color: rgba(220, 53, 69, 0.2) !important; }
+
+.profile-header {
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.stats-card {
+    border-radius: 10px;
+    transition: transform 0.3s;
+}
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+.org-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.role-badge {
+    font-size: 0.8rem;
+}
+.link {
+    margin-top: 5px;
+}
+
+/* -------- register page ----------------- */
+.register-button {
+    padding-top: 5px;
+}
+/* ---------------------------------------- */
+
+/* -------- index page ----------------- */
+.my-content {
+    width: 100%;
+    margin: 1.5rem;
+    /* margin-left: 220px; */
+    /* width: calc(100% - 220px); */
+    /* flex-grow: 1; */
+    padding: 0 !important;
+}
+/* ---------------------------------------- */
+
+/* modificari facut de matei duap Iulian 
+
+-----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+*/
+
+/* Hover și click pe card */
+.hover-shadow {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+.hover-shadow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.card-clickable-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+/* Spațiere între elemente */
+.my-chip-container {
+    margin: 0.5rem 0 1rem;
+}
+
+/* Buton detalii */
+.details-btn {
+    text-decoration: underline !important;
+    font-size: 0.9em;
+    position: relative;
+    z-index: 2;
+}
+.details-btn:hover {
+    text-decoration: none !important;
+}
+
+/* Tag cerere trimisă */
+.request-pending-tag {
+    background: #ffc10715;
+    color: #ffc107;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85em;
+    border: 1px solid #ffc10730;
+}
+
+/* Butoane mici */
+/* Corecții pentru link-ul cardului */
+.hover-card {
+    position: relative;
+}
+
+.hover-card .stretched-link {
+    opacity: 1 !important;
+    z-index: 1;
+}
+
+.hover-card {
+    pointer-events: none;
+}
+
+.hover-card * {
+    pointer-events: auto;
+}
+
+/* Corecții finale pentru navigare */
+.hover-card {
+    position: relative;
+    cursor: pointer;
+}
+
+.stretched-link {
+    pointer-events: auto !important;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 26px;
+    color: white !important;
+    letter-spacing: 1px;
+}
+.logo>span {
+    color: #6399ff;
+}
+
+.sidebar .logo {
+    padding: 8px 20px;
+    padding-bottom: 4px;
+}
+
+
+/* pt sidebar */
+
+/* Corecții sidebar */
+.sidebar {
+    width: 240px !important;
+    padding: 15px 0 !important;
+}
+
+.sidebar .nav-item {
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sidebar .nav-link {
+    padding: 10px 20px !important;
+    margin: 2px 0;
+    border-radius: 0 !important;
+    width: 100%;
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    position: relative;
+    color: #dee2e6 !important;
+}
+
+.sidebar .nav-link i {
+    font-size: 1rem;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.05) !important;
+    margin-left: 0 !important;
+    transform: none !important;
+}
+
+.sidebar .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: -1;
+}
+
+.sidebar .menu-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding: 8px 20px 4px;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.sidebar hr {
+    margin: 12px 0;
+    opacity: 0.2;
+}
+
+/* Active state */
+.sidebar .nav-link.active {
+    background: rgba(41, 98, 181, 0.15) !important;
+    color: #6399ff !important;
+}
+
+.sidebar .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--bs-primary);
+}
+
+/* sile pt dashboard.php in dashboard-style.css*/
+
+
+
+/* stile pt advanced stats.php */
+
+.stat-card {
+    transition: transform 0.3s;
+    height: 100%;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 30px;
+}
+.month-selector {
+    max-width: 200px;
+}
+/* end style for stats page */
+
+
+/* start workin hours */
+
+        .member-status-active { color: #28a745; }
+        .member-status-inactive { color: #dc3545; }
+        .hours-input { max-width: 100px; }
+        .date-input { max-width: 200px; }
+
+/* end */
+
+.table-info-custom {
+    border-style: none;
+}
+
+.list-group-item-action {
+    color: #242a30;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s ease;
+}
+
+.list-group-item-action:hover {
+    background-color: #e9ecef;
+}
