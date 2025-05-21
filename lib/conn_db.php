@@ -7,7 +7,7 @@ session_start();
 $servername = 'localhost';
 $username = 'root';
 $password = '';
-$dbname = 'db_name';
+$dbname = 'org_plus';
 
 $mysqli = new mysqli($servername, $username, $password, $dbname);
 
