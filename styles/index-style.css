@@ -134,7 +134,7 @@
 .request-status {
     width: 40%;
     font-size: 0.9rem;
-    color: var(--surface1);
+    color: white;
     line-height: 0.9rem;
     text-align: center;
 }
