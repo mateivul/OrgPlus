@@ -172,8 +172,8 @@ $result_members = $stmt_members->get_result();
                         <?php $result_members->data_seek(0); ?>
                         <?php while ($member = $result_members->fetch_assoc()):
                             $is_active =
-                                $member['is_active'] ||
-                                $member['events_participated'] >= $member['total_events'] * 0.5 ||
+                                ($member['is_active'] &&
+                                    $member['events_participated'] >= $member['total_events'] * 0.5) ||
                                 $member['total_contribution_hours'] >= 20; ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($member['name'] . ' ' . $member['prenume']); ?></td>
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             Swal.fire({
                 title: 'Confirmare',
-                text: `Sigur doriți să ${newStatus === '1' ? 'activați' : 'dezactivați'} acest membru?`,
+                text: `Sigur doriți să ${newStatus === '1' ? 'marcați ca activ' : 'marcați ca inactiv'} acest membru?`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Da',
