@@ -165,29 +165,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // --- Preluare membri pentru afișare ---
 // Vom folosi o metodă din RoleRepository care returnează o listă de membri cu detalii
-$members_data = $roleRepository->getMembersWithDetailsByOrganization($org_id); // NOUĂ METODĂ ÎN RoleRepository!
+$members_data = $roleRepository->getMembersWithDetailsByOrganization($org_id);
 
-// Funcție ajutătoare pentru roluri (poate fi mutată într-un fișier `helpers.php` sau `ViewHelper` mai târziu)
-if (!function_exists('role_to_readable')) {
-    function role_to_readable(?string $role): string
-    {
-        if ($role === null) {
-            return 'N/A';
-        }
-        switch ($role) {
-            case 'admin':
-                return 'Administrator';
-            case 'owner':
-                return 'Președinte';
-            case 'member':
-                return 'Membru';
-            case 'viewer':
-                return 'Vizualizator';
-            default:
-                return ucfirst($role);
-        }
-    }
-}
+// NOUĂ METODĂ ÎN RoleRepository!
 ?>
 <!DOCTYPE html>
 <html lang="ro">

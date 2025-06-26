@@ -59,6 +59,9 @@ require_once __DIR__ . '/Service/WorkedHoursService.php';
 // Security
 require_once __DIR__ . '/Security/CsrfToken.php';
 
+// Helpers
+require_once __DIR__ . '/../utils/app_helpers.php';
+
 // Obține conexiunea la baza de date
 try {
     $pdo = Database::getConnection();

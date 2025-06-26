@@ -2,13 +2,6 @@
 
 require_once __DIR__ . '/../src/config.php';
 
-// 2. Include fișierul cu funcții ajutătoare (ex: funcții de redirect, de verificare a sesiunii)
-// require_once __DIR__ . '/../utils/app_helpers.php';
-
-// Autoloading (dacă nu ai deja un autoloader PSR-4 configurat)
-// Ideal, ar trebui să ai un autoloader Composer
-require_once __DIR__ . '/../utils/app_helpers.php';
-
 $eventService = getService('EventService');
 $authService = getService(AuthService::class);
 $currentUser = $authService->getCurrentUser();
@@ -17,11 +10,6 @@ $user_id = $currentUser ? $currentUser->id : null;
 
 $event_id = intval($_GET['event_id'] ?? 0);
 
-if ($event_id === 0) {
-    die('ID eveniment lipsă.');
-}
-
-// Obține detaliile evenimentului și permisiunile
 $eventDetails = $eventService->getEventManagementDetails($event_id, $user_id);
 
 $event = $eventDetails['event'] ?? null;
@@ -93,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $has_management_permission) {
     header('Content-Type: application/json');
     echo json_encode([
         'error' => true,
-        'message' => 'Nu aveți permisiunea de a efectua această acțiune.',
+        'message' => 'Nu aveți permisiunea.',
     ]);
     exit();
 }

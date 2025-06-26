@@ -1,11 +1,6 @@
 <?php
-if (!isset($authService)) {
-    throw new Exception(
-        'AuthService is not initialized. Please ensure $authService is set before including sidebar.php'
-    );
-}
 $currentUser = $authService->getCurrentUser();
-$user_id = $currentUser ? $currentUser->id : null; // Obținem ID-ul utilizatorului autentificat
+$user_id = $currentUser ? $currentUser->id : null;
 
 $currentPage = basename($_SERVER['PHP_SELF']);
 $isDashboardPage = in_array($currentPage, [
@@ -24,39 +19,13 @@ $isDashboardPage = in_array($currentPage, [
     'public_profile.php',
 ]);
 
-// Verificări de roluri și membri pentru secțiunea "Meniu Organizație"
 $is_org_admin = false;
 $is_org_member = false;
-$current_org_id = $_SESSION['org_id'] ?? null; // Presupunem că org_id este stocat în sesiune
+$current_org_id = $_SESSION['org_id'] ?? null;
 
 if ($user_id !== null && $current_org_id !== null && isset($roleRepository)) {
     $is_org_member = $roleRepository->isUserMemberOfOrganization($user_id, $current_org_id);
     $is_org_admin = $roleRepository->isUserAdminOrOwner($user_id, $current_org_id);
-} else {
-    // Debugging pentru situații unde $roleRepository nu e setat sau user/org ID lipsesc
-    // error_log("DEBUG sidebar: \$user_id sau \$current_org_id sau \$roleRepository lipsesc pentru verificarea rolului.");
-}
-
-// Funcția role_to_readable (poate fi mutată într-un fișier `utils/helpers.php` sau similar)
-if (!function_exists('role_to_readable')) {
-    function role_to_readable(?string $role): string
-    {
-        if ($role === null) {
-            return 'N/A';
-        }
-        switch ($role) {
-            case 'admin':
-                return 'Administrator';
-            case 'owner':
-                return 'Președinte'; // Am adăugat Președinte
-            case 'member':
-                return 'Membru';
-            case 'viewer':
-                return 'Vizualizator';
-            default:
-                return ucfirst($role);
-        }
-    }
 }
 ?>
 

@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../src/config.php';
-require_once __DIR__ . '/../utils/app_helpers.php';
 
 $user_id = ensure_logged_in();
 $org_id = ensure_existing_org();

@@ -10,28 +10,6 @@ $requestRepository = getService(RequestRepository::class);
 $currentUser = $authService->getCurrentUser();
 $user_id = $currentUser ? $currentUser->id : null;
 
-// Funcție ajutătoare pentru roluri (poți lăsa aici sau muta într-un fișier utils/helpers.php)
-if (!function_exists('role_to_readable')) {
-    function role_to_readable(?string $role): string
-    {
-        if ($role === null) {
-            return 'N/A';
-        }
-        switch ($role) {
-            case 'admin':
-                return 'Administrator';
-            case 'owner':
-                return 'Președinte';
-            case 'member':
-                return 'Membru';
-            case 'viewer':
-                return 'Vizualizator';
-            default:
-                return ucfirst($role);
-        }
-    }
-}
-
 $response_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enroll_org_id'])) {

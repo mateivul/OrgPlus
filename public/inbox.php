@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../src/config.php';
-require_once __DIR__ . '/../utils/app_helpers.php';
 
 $user_id = ensure_logged_in();
 
@@ -13,11 +12,7 @@ $allowed_filters = ['all', 'pending', 'accepted', 'rejected'];
 $filter = isset($_GET['filter']) && in_array($_GET['filter'], $allowed_filters) ? $_GET['filter'] : 'all';
 
 // Only show the request types you want, and map them to your new logic
-$allowed_types = [
-    'event_invitation',
-    'organization_invite_manual',
-    'organization_join_request_response'
-];
+$allowed_types = ['event_invitation', 'organization_invite_manual', 'organization_join_request_response'];
 
 $placeholders = implode(',', array_fill(0, count($allowed_types), '?'));
 
@@ -62,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
 
     try {
         // Fetch the request and lock it for update
-        $stmt = $pdo->prepare("SELECT * FROM requests WHERE request_id = ? FOR UPDATE");
+        $stmt = $pdo->prepare('SELECT * FROM requests WHERE request_id = ? FOR UPDATE');
         $stmt->execute([$request_id]);
         $request = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -77,35 +72,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
             throw new Exception('Nu ai permisiunea să procesezi această solicitare.');
         }
 
-        $new_status = ($action === 'accept') ? 'accepted' : 'rejected';
-        $stmt = $pdo->prepare("UPDATE requests SET status = ? WHERE request_id = ?");
+        $new_status = $action === 'accept' ? 'accepted' : 'rejected';
+        $stmt = $pdo->prepare('UPDATE requests SET status = ? WHERE request_id = ?');
         $stmt->execute([$new_status, $request_id]);
 
         // If accepted, add user to event/org if needed
         if ($action === 'accept') {
             if ($request['request_type'] === 'event_invitation' && $request['event_id']) {
                 // Add user as participant to event_roles if not already
-                $stmt = $pdo->prepare("SELECT 1 FROM event_roles WHERE event_id = ? AND user_id = ?");
+                $stmt = $pdo->prepare('SELECT 1 FROM event_roles WHERE event_id = ? AND user_id = ?');
                 $stmt->execute([$request['event_id'], $user_id]);
                 if (!$stmt->fetchColumn()) {
-                    $stmt = $pdo->prepare("INSERT INTO event_roles (event_id, user_id, role) VALUES (?, ?, 'participant')");
+                    $stmt = $pdo->prepare(
+                        "INSERT INTO event_roles (event_id, user_id, role) VALUES (?, ?, 'participant')"
+                    );
                     $stmt->execute([$request['event_id'], $user_id]);
                 }
             } elseif ($request['request_type'] === 'organization_invite_manual' && $request['organization_id']) {
                 // Add user as member to roles if not already
-                $stmt = $pdo->prepare("SELECT 1 FROM roles WHERE org_id = ? AND user_id = ?");
+                $stmt = $pdo->prepare('SELECT 1 FROM roles WHERE org_id = ? AND user_id = ?');
                 $stmt->execute([$request['organization_id'], $user_id]);
                 if (!$stmt->fetchColumn()) {
-                    $stmt = $pdo->prepare("INSERT INTO roles (org_id, user_id, role, join_date) VALUES (?, ?, 'member', NOW())");
+                    $stmt = $pdo->prepare(
+                        "INSERT INTO roles (org_id, user_id, role, join_date) VALUES (?, ?, 'member', NOW())"
+                    );
                     $stmt->execute([$request['organization_id'], $user_id]);
                 }
             }
         }
 
         $response['success'] = true;
-        $response['message'] = $action === 'accept'
-            ? 'Solicitarea a fost acceptată cu succes!'
-            : 'Solicitarea a fost respinsă cu succes!';
+        $response['message'] =
+            $action === 'accept' ? 'Solicitarea a fost acceptată cu succes!' : 'Solicitarea a fost respinsă cu succes!';
     } catch (Exception $e) {
         $response['error'] = true;
         $response['message'] = $e->getMessage();
@@ -133,10 +131,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
                 <h2>Mesaje Personale</h2>
                 <div class="mb-3">
                     <div class="btn-group" role="group">
-                        <a href="?filter=all" class="btn btn-outline-light <?= $filter === 'all' ? 'active' : '' ?>">Toate</a>
-                        <a href="?filter=pending" class="btn btn-outline-warning <?= $filter === 'pending' ? 'active' : '' ?>">În așteptare</a>
-                        <a href="?filter=accepted" class="btn btn-outline-success <?= $filter === 'accepted' ? 'active' : '' ?>">Acceptate</a>
-                        <a href="?filter=rejected" class="btn btn-outline-danger <?= $filter === 'rejected' ? 'active' : '' ?>">Respinse</a>
+                        <a href="?filter=all" class="btn btn-outline-light <?= $filter === 'all'
+                            ? 'active'
+                            : '' ?>">Toate</a>
+                        <a href="?filter=pending" class="btn btn-outline-warning <?= $filter === 'pending'
+                            ? 'active'
+                            : '' ?>">În așteptare</a>
+                        <a href="?filter=accepted" class="btn btn-outline-success <?= $filter === 'accepted'
+                            ? 'active'
+                            : '' ?>">Acceptate</a>
+                        <a href="?filter=rejected" class="btn btn-outline-danger <?= $filter === 'rejected'
+                            ? 'active'
+                            : '' ?>">Respinse</a>
                     </div>
                 </div>
                 <?php if (empty($personal_requests)): ?>
@@ -148,15 +154,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
                                 <div class="d-flex justify-content-between">
                                     <div>
                                         <?php if ($request['request_type'] === 'event_invitation'): ?>
-                                            Invitație la evenimentul <strong><?php echo htmlspecialchars($request['event_name'] ?? ''); ?></strong>
-                                            de la <?php echo htmlspecialchars($request['sender_name'] . ' ' . $request['sender_prenume']); ?>.
+                                            Invitație la evenimentul <strong><?php echo htmlspecialchars(
+                                                $request['event_name'] ?? ''
+                                            ); ?></strong>
+                                            de la <?php echo htmlspecialchars(
+                                                $request['sender_name'] . ' ' . $request['sender_prenume']
+                                            ); ?>.
                                         <?php elseif ($request['request_type'] === 'organization_invite_manual'): ?>
-                                            Invitație de a te alătura organizației <strong><?php echo htmlspecialchars($request['organization_name']); ?></strong>
-                                            de la <?php echo htmlspecialchars($request['sender_name'] . ' ' . $request['sender_prenume']); ?>.
-                                        <?php elseif ($request['request_type'] === 'organization_join_request_response'): ?>
-                                            Cererea ta de a te alătura organizației <strong><?php echo htmlspecialchars($request['organization_name']); ?></strong> a fost
-                                            <span class="badge bg-<?php echo $request['status'] === 'accepted' ? 'success' : 'danger'; ?>">
-                                                <?php echo $request['status'] === 'accepted' ? 'acceptată' : 'respinsă'; ?>
+                                            Invitație de a te alătura organizației <strong><?php echo htmlspecialchars(
+                                                $request['organization_name']
+                                            ); ?></strong>
+                                            de la <?php echo htmlspecialchars(
+                                                $request['sender_name'] . ' ' . $request['sender_prenume']
+                                            ); ?>.
+                                        <?php elseif (
+                                            $request['request_type'] === 'organization_join_request_response'
+                                        ): ?>
+                                            Cererea ta de a te alătura organizației <strong><?php echo htmlspecialchars(
+                                                $request['organization_name']
+                                            ); ?></strong> a fost
+                                            <span class="badge bg-<?php echo $request['status'] === 'accepted'
+                                                ? 'success'
+                                                : 'danger'; ?>">
+                                                <?php echo $request['status'] === 'accepted'
+                                                    ? 'acceptată'
+                                                    : 'respinsă'; ?>
                                             </span>.
                                         <?php endif; ?>
                                     </div>
@@ -164,17 +186,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
                                 </div>
                                 <div class="mt-2">
                                     <?php if (
-                                        in_array($request['request_type'], ['event_invitation', 'organization_invite_manual']) &&
+                                        in_array($request['request_type'], [
+                                            'event_invitation',
+                                            'organization_invite_manual',
+                                        ]) &&
                                         $request['status'] === 'pending'
                                     ): ?>
                                         <form method="post" class="d-inline form-process">
                                             <input type="hidden" name="action" value="accept">
-                                            <input type="hidden" name="request_id" value="<?php echo $request['request_id']; ?>">
+                                            <input type="hidden" name="request_id" value="<?php echo $request[
+                                                'request_id'
+                                            ]; ?>">
                                             <button type="submit" class="btn btn-success btn-sm btn-process">Acceptă</button>
                                         </form>
                                         <form method="post" class="d-inline ms-2 form-process">
                                             <input type="hidden" name="action" value="reject">
-                                            <input type="hidden" name="request_id" value="<?php echo $request['request_id']; ?>">
+                                            <input type="hidden" name="request_id" value="<?php echo $request[
+                                                'request_id'
+                                            ]; ?>">
                                             <button type="submit" class="btn btn-danger btn-sm btn-process">Refuză</button>
                                         </form>
                                     <?php endif; ?>

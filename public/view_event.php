@@ -2,9 +2,6 @@
 
 require_once __DIR__ . '/../src/config.php';
 
-// 2. Include fișierul cu funcții ajutătoare (ex: funcții de redirect, de verificare a sesiunii)
-require_once __DIR__ . '/../utils/app_helpers.php';
-
 // 3. Extrage serviciile și repository-urile necesare din container
 $authService = getService('AuthService');
 $eventService = getService('EventService');

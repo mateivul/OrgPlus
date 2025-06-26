@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../src/config.php';
-require_once __DIR__ . '/../utils/app_helpers.php';
 
 $user_id = ensure_logged_in();
 $org_id = ensure_existing_org();
@@ -206,27 +205,6 @@ if (!$user_in_top) {
 }
 
 // Roles distribution
-if (!function_exists('role_to_readable')) {
-    function role_to_readable(?string $role): string
-    {
-        if ($role === null) {
-            return 'N/A';
-        }
-        switch ($role) {
-            case 'admin':
-                return 'Administrator';
-            case 'owner':
-                return 'Președinte';
-            case 'member':
-                return 'Membru';
-            case 'viewer':
-                return 'Vizualizator';
-            default:
-                return ucfirst($role);
-        }
-    }
-}
-
 $sql_roles = 'SELECT role, COUNT(*) as count FROM roles WHERE org_id = ? GROUP BY role';
 $stmt_roles = $pdo->prepare($sql_roles);
 $stmt_roles->execute([$org_id]);
@@ -504,7 +482,9 @@ foreach ($hours_ranges_order as $range) {
                                             <td><?php echo htmlspecialchars($event['name']); ?></td>
                                             <td><?php echo date('d.m.Y', strtotime($event['date'])); ?></td>
                                             <td>
-                                                <a href="view_event.php?event_id=<?php echo $event['id']; ?>" class="btn btn-sm btn-info">Vezi</a>
+                                                <a href="view_event.php?event_id=<?php echo $event[
+                                                    'id'
+                                                ]; ?>" class="btn btn-sm btn-info">Vezi</a>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>
@@ -516,8 +496,8 @@ foreach ($hours_ranges_order as $range) {
                             </tbody>
                         </table>
                         <?php
-                        // Remove $stmt_last_events->close(); for PDO, not needed
-                        ?>
+// Remove $stmt_last_events->close(); for PDO, not needed
+?>
                     </div>
                 </div>
             </div>

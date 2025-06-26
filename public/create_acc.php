@@ -1,10 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../src/config.php';
-
 $error = '';
 $success = '';
-
 // Inițializăm dependențele
 $pdo = Database::getConnection();
 

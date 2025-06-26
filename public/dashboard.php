@@ -91,29 +91,9 @@ $last_event_date = $last_event['date'] ?? 'N/A';
 
 // Permisiuni pentru accesul la link-uri din carduri (nu la vizibilitatea cardurilor)
 $can_access_members_page = $is_org_member; // Sau ajustează conform rolurilor specifice dacă e nevoie
-$can_access_events_page = $is_org_member; // Sau ajustează conform rolurilor specifice dacă e nevoie
+$can_access_events_page = $is_org_member;
 
-// Funcție ajutătoare pentru roluri (aceeași ca în index.php, poate fi într-un fișier helpers)
-if (!function_exists('role_to_readable')) {
-    function role_to_readable(?string $role): string
-    {
-        if ($role === null) {
-            return 'N/A';
-        }
-        switch ($role) {
-            case 'admin':
-                return 'Administrator';
-            case 'owner':
-                return 'Președinte';
-            case 'member':
-                return 'Membru';
-            case 'viewer':
-                return 'Vizualizator';
-            default:
-                return ucfirst($role);
-        }
-    }
-}
+// Sau ajustează conform rolurilor specifice dacă e nevoie
 ?>
 
 <!DOCTYPE html>

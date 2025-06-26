@@ -56,3 +56,22 @@ function user_org_role(int $userId, int $orgId): ?string
     $roleRepository = getService('RoleRepository');
     return $roleRepository->getUserRoleInOrganization($userId, $orgId);
 }
+
+function role_to_readable(?string $role): string
+{
+    if ($role === null) {
+        return 'N/A';
+    }
+    switch ($role) {
+        case 'admin':
+            return 'Administrator';
+        case 'owner':
+            return 'Președinte';
+        case 'member':
+            return 'Membru';
+        case 'viewer':
+            return 'Vizualizator';
+        default:
+            return ucfirst($role);
+    }
+}

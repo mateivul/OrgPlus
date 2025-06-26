@@ -3,11 +3,9 @@
 require_once __DIR__ . '/../src/config.php';
 
 // 2. Get the necessary services/repositories from your container
-//    These variables must be available to sidebar.php
+//    These variables must be available to sidebar.php
 $authService = getService('AuthService');
 $roleRepository = getService('RoleRepository'); // sidebar uses this too
-
-require_once __DIR__ . '/../utils/app_helpers.php';
 
 ensure_logged_in();
 ensure_existing_org(); // This also relies on $_SESSION['org_id']

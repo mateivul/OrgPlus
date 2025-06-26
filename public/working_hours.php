@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../src/config.php';
-require_once __DIR__ . '/../utils/app_helpers.php'; // For ensure_logged_in, ensure_existing_org, user_org_role
 
 // 2. Get the necessary services/repositories from your container
 /** @var AuthService $authService */
