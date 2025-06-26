@@ -59,7 +59,7 @@ class RoleRepository
     public function save(Role $role): bool
     {
         // Verifică dacă rolul există deja
-        $existingRole = $this->findByUserIdAndOrgId($role->getUserId(), $role->getOrgId());
+        $existingRole = $this->findByUserIdAndOrgId($role->userId, $role->orgId);
 
         if ($existingRole) {
             // Actualizează rolul existent
@@ -67,10 +67,10 @@ class RoleRepository
                 'UPDATE roles SET role = :role, join_date = :join_date WHERE user_id = :user_id AND org_id = :org_id'
             );
             return $stmt->execute([
-                'role' => $role->getRole(),
-                'join_date' => $role->getJoinDate(),
-                'user_id' => $role->getUserId(),
-                'org_id' => $role->getOrgId(),
+                'role' => $role->role,
+                'join_date' => $role->joinDate,
+                'user_id' => $role->userId,
+                'org_id' => $role->orgId,
             ]);
         } else {
             // Inserează un nou rol
@@ -78,10 +78,10 @@ class RoleRepository
                 'INSERT INTO roles (user_id, org_id, role, join_date) VALUES (:user_id, :org_id, :role, :join_date)'
             );
             return $stmt->execute([
-                'user_id' => $role->getUserId(),
-                'org_id' => $role->getOrgId(),
-                'role' => $role->getRole(),
-                'join_date' => $role->getJoinDate(),
+                'user_id' => $role->userId,
+                'org_id' => $role->orgId,
+                'role' => $role->role,
+                'join_date' => $role->joinDate,
             ]);
         }
     }

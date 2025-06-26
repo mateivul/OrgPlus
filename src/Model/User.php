@@ -4,14 +4,14 @@
 
 class User
 {
-    private ?int $id;
-    private string $firstName;
-    private string $lastName;
-    private string $email;
-    private string $passwordHash;
-    private ?string $oldSalt = null;
-    private ?string $registrationDate;
-    private ?string $lastLoginDate;
+    public ?int $id;
+    public string $firstName;
+    public string $lastName;
+    public string $email;
+    public string $passwordHash;
+    public ?string $oldSalt = null;
+    public ?string $registrationDate;
+    public ?string $lastLoginDate;
 
     public function __construct(
         ?int $id,
@@ -33,62 +33,10 @@ class User
         $this->lastLoginDate = $lastLoginDate;
     }
 
-    // --- Getters ---
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-    public function getFirstName(): string
-    {
-        return $this->firstName;
-    }
-    public function getLastName(): string
-    {
-        return $this->lastName;
-    }
-    public function getEmail(): string
-    {
-        return $this->email;
-    }
-    public function getPasswordHash(): string
-    {
-        return $this->passwordHash;
-    }
-    public function getOldSalt(): ?string
-    {
-        return $this->oldSalt;
-    }
-    public function getRegistrationDate(): ?string
-    {
-        return $this->registrationDate;
-    }
-    public function getLastLoginDate(): ?string
-    {
-        return $this->lastLoginDate;
-    }
-
-    // --- Setters ---
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-    public function setLastLoginDate(string $date): void
-    {
-        $this->lastLoginDate = $date;
-    }
-    public function setPasswordHash(string $passwordHash): void
-    {
-        $this->passwordHash = $passwordHash;
-    }
-    public function clearOldSalt(): void
-    {
-        $this->oldSalt = null;
-    }
-
     // --- Comportament specific User-ului (logica de verificare adaptată) ---
     public function verifyPassword(string $password): bool
     {
-        echo 'DEBUG User Model: Verificare parolă pentru email: ' . $this->getEmail() . '<br>';
+        echo 'DEBUG User Model: Verificare parolă pentru email: ' . $this->email . '<br>';
         echo 'DEBUG User Model: Hashed password in DB: ' . $this->passwordHash . '<br>';
 
         $info = password_get_info($this->passwordHash);

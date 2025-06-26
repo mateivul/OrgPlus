@@ -42,12 +42,12 @@ class RequestRepository
         try {
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([
-                'request_type' => $request->getRequestType(),
-                'sender_user_id' => $request->getSenderUserId(),
-                'receiver_user_id' => $request->getReceiverUserId(),
-                'organization_id' => $request->getOrganizationId(),
-                'event_id' => $request->getEventId(), // Adaugat event_id
-                'status' => $request->getStatus(),
+                'request_type' => $request->requestType,
+                'sender_user_id' => $request->senderUserId,
+                'receiver_user_id' => $request->receiverUserId,
+                'organization_id' => $request->organizationId,
+                'event_id' => $request->eventId,
+                'status' => $request->status,
             ]);
         } catch (PDOException $e) {
             if ($e->getCode() === '23000') {
@@ -117,6 +117,7 @@ class RequestRepository
             $data['status'],
             $data['created_at'],
             $data['id'],
+            $data['responded_at'] ?? null,
             $data['event_id']
         );
     }
@@ -160,6 +161,7 @@ class RequestRepository
                 $data['status'],
                 $data['created_at'],
                 $data['id'],
+                $data['responded_at'] ?? null,
                 $data['event_id']
             );
             $request->event_name = $data['event_name'];

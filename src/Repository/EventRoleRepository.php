@@ -21,9 +21,9 @@ class EventRoleRepository
                 VALUES (:user_id, :event_id, :role)";
         try {
             $stmt = $this->pdo->prepare($sql);
-            $stmt->bindValue(':user_id', $eventRole->getUserId());
-            $stmt->bindValue(':event_id', $eventRole->getEventId());
-            $stmt->bindValue(':role', $eventRole->getRole());
+            $stmt->bindValue(':user_id', $eventRole->userId);
+            $stmt->bindValue(':event_id', $eventRole->eventId);
+            $stmt->bindValue(':role', $eventRole->role);
             return $stmt->execute();
         } catch (PDOException $e) {
             // Ignoră eroarea de duplicat (UNIQUE constraint)
@@ -230,14 +230,19 @@ class EventRoleRepository
                 u.name,
                 u.prenume,
                 COALESCE(er.role, '') AS role,
-                (u.id = :eventCreatorId1) AS is_creator
+                (u.id = :eventCreatorId) AS is_creator
             FROM users u
-            INNER JOIN roles r ON u.id = r.user_id AND r.org_id = :orgId
-            LEFT JOIN event_roles er ON u.id = er.user_id AND er.event_id = :eventId1
+            -- Join cu cererile de invitatie la eveniment care au fost acceptate
+            INNER JOIN requests req ON u.id = req.receiver_user_id
+                AND req.event_id = :eventId
+                AND req.request_type = 'event_invitation'
+                AND req.status = 'accepted'
+            -- Left Join cu rolurile evenimentului pentru a prelua rolul curent, dacă există
+            LEFT JOIN event_roles er ON u.id = er.user_id AND er.event_id = :eventId2
             
             UNION
             
-            -- Adaugă explicit creatorul evenimentului, chiar dacă nu e membru al organizației (caz excepțional)
+            -- Adaugă explicit creatorul evenimentului, care este mereu eligibil
             SELECT
                 u.id,
                 u.name,
@@ -245,22 +250,25 @@ class EventRoleRepository
                 COALESCE(er.role, '') AS role,
                 1 AS is_creator
             FROM users u
-            LEFT JOIN event_roles er ON u.id = er.user_id AND er.event_id = :eventId2
-            WHERE u.id = :eventCreatorId2 AND u.id NOT IN (SELECT user_id FROM roles WHERE org_id = :orgId2)
+            LEFT JOIN event_roles er ON u.id = er.user_id AND er.event_id = :eventId3
+            WHERE u.id = :eventCreatorId2
             
-            ORDER BY is_creator DESC, name, prenume
+            ORDER BY is_creator DESC, name ASC, prenume ASC
         ";
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':orgId', $orgId, PDO::PARAM_INT);
-        $stmt->bindValue(':eventId1', $eventId, PDO::PARAM_INT);
-        $stmt->bindValue(':eventCreatorId1', $eventCreatorId, PDO::PARAM_INT);
-        $stmt->bindValue(':eventId2', $eventId, PDO::PARAM_INT);
-        $stmt->bindValue(':eventCreatorId2', $eventCreatorId, PDO::PARAM_INT);
-        $stmt->bindValue(':orgId2', $orgId, PDO::PARAM_INT); // Pentru subquery
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':eventCreatorId', $eventCreatorId, PDO::PARAM_INT);
+            $stmt->bindParam(':eventId', $eventId, PDO::PARAM_INT);
+            $stmt->bindParam(':eventId2', $eventId, PDO::PARAM_INT);
+            $stmt->bindParam(':eventCreatorId2', $eventCreatorId, PDO::PARAM_INT);
+            $stmt->bindParam(':eventId3', $eventId, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log('Eroare în findEligibleMembersWithEventRoles: ' . $e->getMessage());
+            return [];
+        }
     }
     public function assignOrUpdateEventRole(int $eventId, int $userId, string $role): bool
     {

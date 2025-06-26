@@ -181,7 +181,7 @@ class OrganizationService
             throw new Exception('Nu există un utilizator înregistrat cu acest email.');
         }
 
-        $receiverUserId = $receiverUser->getId();
+        $receiverUserId = $receiverUser->id;
 
         // 4. Verifică dacă utilizatorul este deja membru al organizației
         if ($this->roleRepository->isUserMemberOfOrganization($receiverUserId, $orgId)) {

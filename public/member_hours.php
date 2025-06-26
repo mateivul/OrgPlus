@@ -84,9 +84,7 @@ $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $o
                 $work_date = null;
                 if (is_object($row)) {
                     // Use getter if available, else public property, else '-'
-                    if (method_exists($row, 'getWorkDate')) {
-                        $work_date = $row->getWorkDate();
-                    } elseif (property_exists($row, 'work_date')) {
+                    if (property_exists($row, 'work_date')) {
                         $work_date = $row->work_date;
                     }
                 } else {
@@ -100,9 +98,7 @@ $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $o
                 // Safely get hours
                 $hours_val = null;
                 if (is_object($row)) {
-                    if (method_exists($row, 'getHours')) {
-                        $hours_val = $row->getHours();
-                    } elseif (property_exists($row, 'hours')) {
+                    if (property_exists($row, 'hours')) {
                         $hours_val = $row->hours;
                     }
                 } else {
@@ -116,9 +112,7 @@ $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $o
                 // Safely get description
                 $desc = null;
                 if (is_object($row)) {
-                    if (method_exists($row, 'getDescription')) {
-                        $desc = $row->getDescription();
-                    } elseif (property_exists($row, 'description')) {
+                    if (property_exists($row, 'description')) {
                         $desc = $row->description;
                     }
                 } else {
@@ -132,8 +126,8 @@ $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $o
                 // Show the date the hour entry was added (recorded_at)
                 $recorded = null;
                 if (is_object($row)) {
-                    if (method_exists($row, 'getRecordedAt')) {
-                        $recorded = $row->getRecordedAt();
+                    if (property_exists($row, 'recorded_at')) {
+                        $recorded = $row->recorded_at;
                     }
                 } else {
                     $recorded = $row['recorded_at'] ?? null;

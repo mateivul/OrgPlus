@@ -17,12 +17,12 @@ class WorkedHoursRepository
         try {
             $stmt = $this->pdo->prepare($sql);
             $success = $stmt->execute([
-                'user_id' => $workedHour->getUserId(),
-                'org_id' => $workedHour->getOrgId(),
-                'hours' => $workedHour->getHours(),
-                'work_date' => $workedHour->getWorkDate(),
-                'description' => $workedHour->getDescription(),
-                'recorded_by' => $workedHour->getRecordedBy() ?? null,
+                'user_id' => $workedHour->userId,
+                'org_id' => $workedHour->orgId,
+                'hours' => $workedHour->hours,
+                'work_date' => $workedHour->workDate,
+                'description' => $workedHour->description,
+                'recorded_by' => $workedHour->recordedBy ?? null,
             ]);
 
             if (!$success) {
@@ -33,7 +33,7 @@ class WorkedHoursRepository
             }
 
             if ($success) {
-                $workedHour->setId((int) $this->pdo->lastInsertId());
+                $workedHour->id = (int) $this->pdo->lastInsertId();
             }
             return $success;
         } catch (PDOException $e) {
@@ -71,21 +71,11 @@ class WorkedHoursRepository
                 array_key_exists('created_at', $data) && $data['created_at'] !== null ? $data['created_at'] : '',
                 array_key_exists('updated_at', $data) && $data['updated_at'] !== null ? $data['updated_at'] : ''
             );
-            // Use setters instead of dynamic properties
-            if (method_exists($workedHour, 'setUserName')) {
-                $workedHour->setUserName(isset($data['user_name']) ? $data['user_name'] : '');
-            }
-            if (method_exists($workedHour, 'setUserPrenume')) {
-                $workedHour->setUserPrenume(isset($data['user_prenume']) ? $data['user_prenume'] : '');
-            }
-            if (method_exists($workedHour, 'setRecordedByName')) {
-                $workedHour->setRecordedByName(isset($data['recorded_by_name']) ? $data['recorded_by_name'] : '');
-            }
-            if (method_exists($workedHour, 'setRecordedByPrenume')) {
-                $workedHour->setRecordedByPrenume(
-                    isset($data['recorded_by_prenume']) ? $data['recorded_by_prenume'] : ''
-                );
-            }
+            // Set properties directly instead of using setters
+            $workedHour->user_name = isset($data['user_name']) ? $data['user_name'] : '';
+            $workedHour->user_prenume = isset($data['user_prenume']) ? $data['user_prenume'] : '';
+            $workedHour->recorded_by_name = isset($data['recorded_by_name']) ? $data['recorded_by_name'] : '';
+            $workedHour->recorded_by_prenume = isset($data['recorded_by_prenume']) ? $data['recorded_by_prenume'] : '';
             $workedHours[] = $workedHour;
         }
         return $workedHours;
@@ -122,21 +112,11 @@ class WorkedHoursRepository
                 array_key_exists('updated_at', $data) && $data['updated_at'] !== null ? $data['updated_at'] : '',
                 array_key_exists('recorded_at', $data) && $data['recorded_at'] !== null ? $data['recorded_at'] : '' // add this line
             );
-            // Use setters instead of dynamic properties
-            if (method_exists($workedHour, 'setUserName')) {
-                $workedHour->setUserName(isset($data['user_name']) ? $data['user_name'] : '');
-            }
-            if (method_exists($workedHour, 'setUserPrenume')) {
-                $workedHour->setUserPrenume(isset($data['user_prenume']) ? $data['user_prenume'] : '');
-            }
-            if (method_exists($workedHour, 'setRecordedByName')) {
-                $workedHour->setRecordedByName(isset($data['recorded_by_name']) ? $data['recorded_by_name'] : '');
-            }
-            if (method_exists($workedHour, 'setRecordedByPrenume')) {
-                $workedHour->setRecordedByPrenume(
-                    isset($data['recorded_by_prenume']) ? $data['recorded_by_prenume'] : ''
-                );
-            }
+            // Set properties directly instead of using setters
+            $workedHour->user_name = isset($data['user_name']) ? $data['user_name'] : '';
+            $workedHour->user_prenume = isset($data['user_prenume']) ? $data['user_prenume'] : '';
+            $workedHour->recorded_by_name = isset($data['recorded_by_name']) ? $data['recorded_by_name'] : '';
+            $workedHour->recorded_by_prenume = isset($data['recorded_by_prenume']) ? $data['recorded_by_prenume'] : '';
             $workedHours[] = $workedHour;
         }
         return $workedHours;

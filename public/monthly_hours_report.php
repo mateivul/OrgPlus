@@ -13,9 +13,9 @@ if (!in_array($user_role, ['admin', 'owner'])) {
     die('Permisiuni insuficiente');
 }
 
-$orgRepository = getService('OrganizationRepository');
-$organization = $orgRepository->findById($org_id);
-$org_name = $organization ? $organization->getName() : 'Organizație necunoscută';
+$organizationRepository = getService('OrganizationRepository');
+$organization = $organizationRepository->findById($org_id);
+$org_name = $organization ? $organization->name : 'Organizație necunoscută';
 
 $workedHoursRepository = getService('WorkedHoursRepository');
 
@@ -36,7 +36,7 @@ $stmt = $workedHoursRepository->getPdo()->prepare($sql);
 $stmt->execute([
     'org_id' => $org_id,
     'year' => $year,
-    'month' => $month
+    'month' => $month,
 ]);
 $report = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -60,7 +60,9 @@ $month_name = date('F Y', mktime(0, 0, 0, $month, 1, $year));
 
     <div class="my-content p-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="mb-0">Raport ore <?php echo htmlspecialchars($month_name); ?> - <?php echo htmlspecialchars($org_name); ?></h2>
+            <h2 class="mb-0">Raport ore <?php echo htmlspecialchars($month_name); ?> - <?php echo htmlspecialchars(
+     $org_name
+ ); ?></h2>
             <a href="worked_hours_report.php?org_id=<?php echo $org_id; ?>" class="btn btn-secondary">Înapoi</a>
         </div>
 
@@ -89,7 +91,9 @@ $month_name = date('F Y', mktime(0, 0, 0, $month, 1, $year));
             <td><?php echo number_format($row['hours'], 1); ?></td>
             <td><?php echo htmlspecialchars($row['recorded_at'] ?? '-'); ?></td>
             <td>
-                <a href="member_hours.php?user_id=<?php echo $row['user_id']; ?>&org_id=<?php echo $org_id; ?>&year=<?php echo $year; ?>&month=<?php echo $month; ?>" 
+                <a href="member_hours.php?user_id=<?php echo $row[
+                    'user_id'
+                ]; ?>&org_id=<?php echo $org_id; ?>&year=<?php echo $year; ?>&month=<?php echo $month; ?>" 
                    class="btn btn-sm btn-outline-info">Detalii</a>
             </td>
         </tr>

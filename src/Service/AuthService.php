@@ -24,20 +24,20 @@ class AuthService
                 echo 'DEBUG AuthService: Parolă verificată cu succes.<br>';
 
                 // --- Logica de migrare a parolei ---
-                $info = password_get_info($user->getPasswordHash());
+                $info = password_get_info($user->passwordHash);
                 echo 'DEBUG AuthService: Password info algo: ' .
                     $info['algo'] .
                     ', oldSalt: ' .
-                    ($user->getOldSalt() ?? 'NULL') .
+                    ($user->oldSalt ?? 'NULL') .
                     '<br>';
 
-                if ($info['algo'] === 0 && $user->getOldSalt() !== null) {
+                if ($info['algo'] === 0 && $user->oldSalt !== null) {
                     echo 'DEBUG AuthService: Detectat hash vechi. Încercare de migrare...<br>';
                     $newPasswordHash = password_hash($password, PASSWORD_DEFAULT);
-                    if ($this->userRepository->updatePasswordHash($user->getId(), $newPasswordHash)) {
+                    if ($this->userRepository->updatePasswordHash($user->id, $newPasswordHash)) {
                         echo 'DEBUG AuthService: Parolă migrată cu succes.<br>';
-                        $user->setPasswordHash($newPasswordHash);
-                        $user->clearOldSalt();
+                        $user->passwordHash = $newPasswordHash;
+                        $user->oldSalt = null;
                     } else {
                         echo 'DEBUG AuthService EROARE: Migrare parolă eșuată în UserRepository.<br>';
                     }

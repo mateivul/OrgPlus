@@ -1,9 +1,11 @@
 <?php
 if (!isset($authService)) {
-    throw new Exception('AuthService is not initialized. Please ensure $authService is set before including sidebar.php');
+    throw new Exception(
+        'AuthService is not initialized. Please ensure $authService is set before including sidebar.php'
+    );
 }
 $currentUser = $authService->getCurrentUser();
-$user_id = $currentUser ? $currentUser->getId() : null; // Obținem ID-ul utilizatorului autentificat
+$user_id = $currentUser ? $currentUser->id : null; // Obținem ID-ul utilizatorului autentificat
 
 $currentPage = basename($_SERVER['PHP_SELF']);
 $isDashboardPage = in_array($currentPage, [

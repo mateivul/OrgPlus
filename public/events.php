@@ -139,14 +139,14 @@ try {
                         /** @var Event $event */
                         ?>
                         <tr>
-                            <td><?= htmlspecialchars($event->getName()) ?></td>
-                            <td><?= htmlspecialchars(substr($event->getDescription(), 0, 100)) .
-                                (strlen($event->getDescription()) > 100 ? '...' : '') ?></td>
-                            <td><?= date('d-m-Y H:i', strtotime($event->getDate())) ?></td>
+                            <td><?= htmlspecialchars($event->name) ?></td>
+                            <td><?= htmlspecialchars(substr($event->description, 0, 100)) .
+                                (strlen($event->description) > 100 ? '...' : '') ?></td>
+                            <td><?= date('d-m-Y H:i', strtotime($event->date)) ?></td>
                             <td>
-                                <a href="view_event.php?event_id=<?= $event->getId() ?>" class="btn btn-info btn-sm">Vezi Detalii</a>
+                                <a href="view_event.php?event_id=<?= $event->id ?>" class="btn btn-info btn-sm">Vezi Detalii</a>
                                 <?php if ($is_admin): ?>
-                                    <a href="assign_roles.php?event_id=<?= $event->getId() ?>" class="btn btn-warning btn-sm">Roluri</a>
+                                    <a href="assign_roles.php?event_id=<?= $event->id ?>" class="btn btn-warning btn-sm">Roluri</a>
                                 <?php endif; ?>
                             </td>
                         </tr>

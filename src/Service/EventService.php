@@ -68,11 +68,11 @@ class EventService
         // 3. Trimite invitații tuturor membrilor organizației (cu excepția creatorului)
         $members = $this->organizationService->getOrganizationMembers($orgId);
         foreach ($members as $member) {
-            if ($member->getId() !== $createdByUserId) {
+            if ($member->id !== $createdByUserId) {
                 $existingRequest = $this->requestRepository->findExistingRequest(
                     'event_invitation',
                     $createdByUserId,
-                    $member->getId(),
+                    $member->id,
                     $orgId,
                     $eventId, // Pass $eventId here for the find check
                     ['pending', 'accepted']
@@ -82,7 +82,7 @@ class EventService
                     $eventInvitationRequest = new Request(
                         'event_invitation',
                         $createdByUserId,
-                        $member->getId(),
+                        $member->id,
                         $orgId,
                         'pending',
                         null, // created_at (let DB handle, or pass date('Y-m-d H:i:s'))
@@ -95,7 +95,7 @@ class EventService
                             'Eroare la trimiterea invitației evenimentului ' .
                                 $eventId .
                                 ' către utilizatorul ' .
-                                $member->getId()
+                                $member->id
                         );
                     }
                 } else {
@@ -103,7 +103,7 @@ class EventService
                         'Invitație la eveniment ' .
                             $eventId .
                             ' pentru utilizatorul ' .
-                            $member->getId() .
+                            $member->id .
                             ' deja existentă sau acceptată.'
                     );
                 }
@@ -159,7 +159,7 @@ class EventService
         $currentTasks = $this->eventRepository->getTasksForEvent($eventId);
         $currentTasksByUser = [];
         foreach ($currentTasks as $task) {
-            $currentTasksByUser[$task->getUserId()] = $task;
+            $currentTasksByUser[$task->userId] = $task;
         }
 
         foreach ($postData as $key => $value) {
@@ -171,32 +171,26 @@ class EventService
                 // Verificăm dacă utilizatorul este participant la eveniment
                 // Aceasta ar trebui să fie o verificare robustă, poate printr-o metodă în EventRoleRepository
                 $isParticipant = $this->eventRoleRepository->isUserAssignedToEventRole($assignedToUserId, $eventId);
-
                 if (!$isParticipant) {
                     error_log(
                         "Tentativă de a atribui task unui non-participant: user_id $assignedToUserId, event_id $eventId"
                     );
-                    continue; // Sărim peste acest task dacă utilizatorul nu e participant
+                    continue;
                 }
-
                 if (array_key_exists($assignedToUserId, $currentTasksByUser)) {
-                    // Task existent: actualizează sau șterge
                     $existingTask = $currentTasksByUser[$assignedToUserId];
                     if (!empty($taskDescription)) {
-                        // Actualizează task-ul existent
-                        if ($existingTask->getTaskDescription() !== $taskDescription) {
+                        if ($existingTask->taskDescription !== $taskDescription) {
                             $this->eventRepository->updateEventTask(
-                                $existingTask->getTaskId(),
+                                $existingTask->taskId,
                                 $taskDescription,
                                 $assignedByUserId
                             );
                         }
                     } else {
-                        // Șterge task-ul dacă descrierea este goală
-                        $this->eventRepository->deleteEventTask($existingTask->getTaskId());
+                        $this->eventRepository->deleteEventTask($existingTask->taskId);
                     }
                 } elseif (!empty($taskDescription)) {
-                    // Task nou: creează
                     $newTask = new EventTask($eventId, $assignedToUserId, $taskDescription, $assignedByUserId);
                     $this->eventRepository->saveEventTask($newTask);
                 }
@@ -226,17 +220,11 @@ class EventService
         $event = $this->eventRepository->find($eventId);
 
         if ($event) {
-            // Obținem detaliile organizației folosind OrganizationService
-            // Acum apelăm metoda getOrganizationById() din OrganizationService
-            $organization = $this->organizationService->getOrganizationById($event->getOrgId());
-
+            $organization = $this->organizationService->getOrganizationById($event->orgId);
             if ($organization) {
-                // Adaugă numele organizației și ID-ul proprietarului ca proprietăți dinamice.
-                // Acestea pot fi accesate apoi ca $event->orgName și $event->orgOwnerId
-                $event->orgName = $organization->getName();
-                $event->orgOwnerId = $organization->getOwnerId();
+                $event->orgName = $organization->name;
+                $event->orgOwnerId = $organization->ownerId;
             } else {
-                // Dacă organizația nu este găsită (caz excepțional, indică o eroare de date)
                 $event->orgName = 'Organizație necunoscută';
                 $event->orgOwnerId = null;
             }
@@ -275,14 +263,13 @@ class EventService
         string $availableRolesStr
     ): bool {
         $event = $this->eventRepository->find($eventId);
-        if (!$event || $event->getOrgId() !== $orgId) {
+        if (!$event || $event->orgId !== $orgId) {
             return false; // Evenimentul nu există sau nu aparține organizației
         }
-
-        $event->setName($name);
-        $event->setDescription($description);
-        $event->setDate($date);
-        $event->setAvailableRoles($availableRolesStr);
+        $event->name = $name;
+        $event->description = $description;
+        $event->date = $date;
+        $event->availableRoles = $availableRolesStr;
 
         return $this->eventRepository->update($event);
     }
@@ -297,7 +284,7 @@ class EventService
     {
         // Asigură-te că evenimentul aparține organizației
         $event = $this->eventRepository->find($eventId);
-        if (!$event || $event->getOrgId() !== $orgId) {
+        if (!$event || $event->orgId !== $orgId) {
             return false;
         }
 
@@ -332,13 +319,13 @@ class EventService
         }
 
         // Obține detalii organizație pentru numele și owner_id
-        $organization = $this->organizationService->getOrganizationById($event->getOrgId());
-        $orgName = $organization ? $organization->getName() : 'Organizație necunoscută';
-        $orgOwnerId = $organization ? $organization->getOwnerId() : null;
+        $organization = $this->organizationService->getOrganizationById($event->orgId);
+        $orgName = $organization ? $organization->name : 'Organizație necunoscută';
+        $orgOwnerId = $organization ? $organization->ownerId : null;
 
         // Verifică permisiunile
-        $isOrgAdminOrOwner = $this->roleRepository->isUserAdminOrOwner($userId, $event->getOrgId());
-        $isEventOwner = $userId === $event->getCreatedBy(); // creatorul evenimentului
+        $isOrgAdminOrOwner = $this->roleRepository->isUserAdminOrOwner($userId, $event->orgId);
+        $isEventOwner = $userId === $event->createdBy; // creatorul evenimentului
         $hasManagementPermission = $isOrgAdminOrOwner || $isEventOwner;
 
         $permissionError = null;
@@ -347,7 +334,7 @@ class EventService
         }
 
         // Parsează rolurile disponibile
-        $availableRolesString = $event->getAvailableRoles() ?? '';
+        $availableRolesString = $event->availableRoles ?? '';
         $roles = !empty($availableRolesString) ? array_map('trim', explode(',', $availableRolesString)) : [];
         $roles = array_filter($roles);
 

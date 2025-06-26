@@ -13,7 +13,7 @@ $eventService = getService('EventService');
 $authService = getService(AuthService::class);
 $currentUser = $authService->getCurrentUser();
 
-$user_id = $currentUser ? $currentUser->getId() : null;
+$user_id = $currentUser ? $currentUser->id : null;
 
 $event_id = intval($_GET['event_id'] ?? 0);
 
@@ -24,11 +24,11 @@ if ($event_id === 0) {
 // Obține detaliile evenimentului și permisiunile
 $eventDetails = $eventService->getEventManagementDetails($event_id, $user_id);
 
-$event = $eventDetails['event'];
-$event_name = $event ? $event->getName() : 'Eveniment necunoscut';
+$event = $eventDetails['event'] ?? null;
+$event_name = $event ? $event->name : 'Eveniment necunoscut';
 $org_name = $eventDetails['org_name'];
-$org_id = $event ? $event->getOrgId() : 0;
-$event_creator_id = $event ? $event->getCreatedBy() : 0; // Renamed from owner_id to event_creator_id for clarity with events
+$org_id = $event ? $event->orgId : 0;
+$event_creator_id = $event ? $event->createdBy : 0; // Renamed from owner_id to event_creator_id for clarity with events
 $available_roles = $eventDetails['roles'];
 $has_management_permission = $eventDetails['has_management_permission'];
 $permission_error = $eventDetails['permission_error'];

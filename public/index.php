@@ -8,7 +8,7 @@ $organizationRepository = getService(OrganizationRepository::class);
 $requestRepository = getService(RequestRepository::class);
 
 $currentUser = $authService->getCurrentUser();
-$user_id = $currentUser ? $currentUser->getId() : null;
+$user_id = $currentUser ? $currentUser->id : null;
 
 // Funcție ajutătoare pentru roluri (poți lăsa aici sau muta într-un fișier utils/helpers.php)
 if (!function_exists('role_to_readable')) {
@@ -109,14 +109,12 @@ if ($currentUser) {
                 } else {
                     foreach ($organizations as $org): ?>
                         <div class="my-card">
-                            <a class="my-card-body" href="select_org.php?org_id=<?php echo $org->getId(); ?>">
+                            <a class="my-card-body" href="select_org.php?org_id=<?php echo $org->id; ?>">
                                 <div class="my-card-body-text">
                                     <div>
-                                        <span class="card-title"><?php echo htmlspecialchars($org->getName()); ?></span>
+                                        <span class="card-title"><?php echo htmlspecialchars($org->name); ?></span>
                                     </div>
-                                    <p class="card-description"><?php echo htmlspecialchars(
-                                        $org->getDescription()
-                                    ); ?></p>
+                                    <p class="card-description"><?php echo htmlspecialchars($org->description); ?></p>
                                 </div>
                                 <div class="my-card-body-arrow">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 330 330">
@@ -129,7 +127,7 @@ if ($currentUser) {
                                 <button
                                     class="details-button footer-button"
                                     data-bs-toggle="modal"
-                                    data-bs-target="#orgModal<?php echo $org->getId(); ?>">
+                                    data-bs-target="#orgModal<?php echo $org->id; ?>">
                                     Detalii
                                 </button>
                                 <?php if (
@@ -151,7 +149,7 @@ if ($currentUser) {
                                     <?php else: ?>
                                         <?php if ($currentUser): ?>
                                             <form method="POST" class="join-form footer-button">
-                                                <input type="hidden" name="enroll_org_id" value="<?php echo $org->getId(); ?>">
+                                                <input type="hidden" name="enroll_org_id" value="<?php echo $org->id; ?>">
                                                 <?= CsrfToken::csrfField() ?>
                                                 <button type="submit" class="join-form-button">
                                                     Alătură-te
@@ -165,20 +163,20 @@ if ($currentUser) {
                             </div>
                         </div>
 
-                        <div class="modal fade" id="orgModal<?php echo $org->getId(); ?>" tabindex="-1" aria-labelledby="orgModalLabel<?php echo $org->getId(); ?>" aria-hidden="true">
+                        <div class="modal fade" id="orgModal<?php echo $org->id; ?>" tabindex="-1" aria-labelledby="orgModalLabel<?php echo $org->id; ?>" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="orgModalLabel<?php echo $org->getId(); ?>">
-                                            <?php echo htmlspecialchars($org->getName()); ?>
+                                        <h5 class="modal-title" id="orgModalLabel<?php echo $org->id; ?>">
+                                            <?php echo htmlspecialchars($org->name); ?>
                                         </h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <p><?php echo htmlspecialchars($org->getDescription()); ?></p>
-                                        <?php if ($org->getWebsite()): ?>
+                                        <p><?php echo htmlspecialchars($org->description); ?></p>
+                                        <?php if ($org->website): ?>
                                             <p><a href="<?php echo htmlspecialchars(
-                                                $org->getWebsite()
+                                                $org->website
                                             ); ?>" target="_blank">Vizitează site-ul</a></p>
                                         <?php endif; ?>
                                         <p>Membri: <?php echo $org->memberCount; ?></p>

@@ -1,6 +1,5 @@
-
 <?php // No namespace or use statements
-
+// No namespace or use statements
 class OrganizationRepository
 {
     private PDO $pdo;
@@ -99,7 +98,7 @@ class OrganizationRepository
     }
     public function findById(int $id): ?Organization
     {
-        $sql = 'SELECT id, name, description, owner_id, created_at FROM organizations WHERE id = :id';
+        $sql = 'SELECT id, name, description, owner_id, created_at, website FROM organizations WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -107,11 +106,12 @@ class OrganizationRepository
 
         if ($data) {
             return new Organization(
-                $data['id'],
+                (int) $data['id'],
                 $data['name'],
                 $data['description'],
-                $data['owner_id'],
-                $data['created_at']
+                $data['website'],
+                $data['created_at'],
+                (int) $data['owner_id']
             );
         }
         return null;

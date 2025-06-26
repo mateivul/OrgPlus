@@ -17,7 +17,7 @@ if (!$currentUser) {
     exit();
 }
 
-$user_id = $currentUser->getId();
+$user_id = $currentUser->id;
 
 // Verifică dacă org_id este setată în sesiune
 if (!isset($_SESSION['org_id'])) {
@@ -35,8 +35,8 @@ if (!$organization) {
     exit();
 }
 
-$org_name = $organization->getName();
-$created_at_str = $organization->getCreatedAt();
+$org_name = $organization->name;
+$created_at_str = $organization->createdAt;
 $formatted_creation_date = 'N/A';
 $activity_text = 'N/A';
 
@@ -69,7 +69,7 @@ if ($created_at_str) {
 }
 
 // Numele utilizatorului curent
-$name = $currentUser->getFirstName() . ' ' . $currentUser->getLastName();
+$name = $currentUser->firstName . ' ' . $currentUser->lastName;
 
 // --- Logica pentru conținut condițional bazat pe rol ---
 $user_role = $roleRepository->getUserRoleInOrganization($user_id, $org_id);
@@ -212,12 +212,10 @@ if (!function_exists('role_to_readable')) {
                             <p class="card-meta">Creată la: <span class="text-white-50"><?php echo htmlspecialchars(
                                 $formatted_creation_date
                             ); ?></span></p>
-                            <?php if ($organization->getWebsite()): ?>
+                            <?php if ($organization->website): ?>
                                 <p class="card-meta">Site web: <a href="<?php echo htmlspecialchars(
-                                    $organization->getWebsite()
-                                ); ?>" target="_blank"><?php echo htmlspecialchars(
-    $organization->getWebsite()
-); ?></a></p>
+                                    $organization->website
+                                ); ?>" target="_blank"><?php echo htmlspecialchars($organization->website); ?></a></p>
                             <?php endif; ?>
                         </div>
                            <div class="card-footer-action">

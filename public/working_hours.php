@@ -31,7 +31,7 @@ if (!$is_admin) {
 
 // Get organization name for display
 $organization = $organizationService->getOrganizationById($org_id);
-$org_name = $organization ? $organization->getName() : 'Organizație Necunoscută';
+$org_name = $organization ? $organization->name : 'Organizație Necunoscută';
 
 // Handle AJAX POST requests for adding worked hours
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

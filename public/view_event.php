@@ -35,7 +35,7 @@ if (!$event) {
 
 // Asigură-te că evenimentul aparține organizației curente din sesiune
 $current_org_id = $_SESSION['org_id'];
-if ($event->getOrgId() !== $current_org_id) {
+if ($event->orgId !== $current_org_id) {
     // Dacă evenimentul nu aparține organizației curente, redirecționează
     header('Location: events.php'); // Sau o pagină de eroare/acces interzis
     exit();
@@ -46,14 +46,8 @@ $user_role_in_org = $roleRepository->getUserRoleInOrganization($user_id, $curren
 $is_org_admin = in_array($user_role_in_org, ['admin', 'owner']);
 
 // Verifică dacă utilizatorul curent este admin sau proprietar al organizației evenimentului
-// NOTA: Proprietarul organizației este `owner_id` în tabelul `organizations`.
-// `created_by` în tabelul `events` este user_id-ul care a creat evenimentul.
-// Presupun că $event->getOrgOwnerId() este o metodă care ar trebui să existe în Event
-// sau să fie obținută separat de la OrganizationRepository.
-// Dacă `$event->getOrgOwnerId()` nu există, va trebui să o adaugi sau să o obții de la organizație.
-// Momentan, las-o așa dacă nu generează erori la rulare, dar ține cont de ea.
 $organization = $organizationRepository->findById($current_org_id);
-$is_event_admin_or_owner = $is_org_admin || ($organization && $user_id === $organization->getOwnerId());
+$is_event_admin_or_owner = $is_org_admin || ($organization && $user_id === $organization->ownerId);
 
 // Procesare cerere POST pentru salvarea sarcinilor
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_event_admin_or_owner && isset($_POST['save_tasks'])) {
@@ -86,7 +80,7 @@ $event_participants_with_roles = $eventService->getEventParticipantsWithRoles($e
 $raw_event_tasks = $eventService->getEventTasks($event_id);
 $tasks_by_user = [];
 foreach ($raw_event_tasks as $task) {
-    $tasks_by_user[$task->getUserId()] = $task->getTaskDescription();
+    $tasks_by_user[$task->userId] = $task->taskDescription;
 }
 
 // Include antetul (header) și bara laterală (sidebar)
@@ -96,7 +90,7 @@ foreach ($raw_event_tasks as $task) {
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <title>Vizualizare Eveniment - <?php echo htmlspecialchars($event->getName()); ?></title>
+    <title>Vizualizare Eveniment - <?php echo htmlspecialchars($event->name); ?></title>
     <?php
 // Calea corectă pentru _header.php (dacă este un fișier PHP)
 ?>
@@ -111,12 +105,12 @@ require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
         <div class="content p-4 w-100">
             <div class="my-evet-card text-white mb-4 p-4 shadow">
-                <h2><?php echo htmlspecialchars($event->getName()); ?></h2>
+                <h2><?php echo htmlspecialchars($event->name); ?></h2>
                 <p><strong>Organizație:</strong> <a class="participant-link" href="dashboard.php"><?php echo htmlspecialchars(
                     $event->orgName // Aici folosim proprietatea dinamică adăugată în Service
                 ); ?></a></p>
-                <p><strong>Descriere:</strong> <?php echo nl2br(htmlspecialchars($event->getDescription())); ?></p>
-                <p><strong>Data:</strong> <?php echo date('d-m-Y H:i', strtotime($event->getDate())); ?></p>
+                <p><strong>Descriere:</strong> <?php echo nl2br(htmlspecialchars($event->description)); ?></p>
+                <p><strong>Data:</strong> <?php echo date('d-m-Y H:i', strtotime($event->date)); ?></p>
                 <p><a href="events.php" class="btn btn-sm btn-outline-light mt-2">&laquo; Înapoi la Evenimente</a></p>
             </div>
 
@@ -127,13 +121,13 @@ require_once __DIR__ . '/../includes/sidebar.php'; ?>
                         <?php foreach ($event_participants_with_roles as $participant): ?>
                             <li>
                                 <strong>
-                                    <a class="participant-link" href="public_profile.php?user_id=<?php echo $participant->getUserId(); ?>">
+                                    <a class="participant-link" href="public_profile.php?user_id=<?php echo $participant->userId; ?>">
                                         <?php echo htmlspecialchars(
-                                            $participant->getUserName() . ' ' . $participant->getUserPrenume()
+                                            $participant->userName . ' ' . $participant->userPrenume
                                         ); ?>
                                     </a>:
                                 </strong>
-                                <?php echo htmlspecialchars($participant->getRole()); ?>
+                                <?php echo htmlspecialchars($participant->role); ?>
                             </li>
                         <?php endforeach; ?>
                     </ul>
@@ -166,12 +160,12 @@ require_once __DIR__ . '/../includes/sidebar.php'; ?>
                                     <?php foreach ($event_participants_with_roles as $member): ?>
                                         <tr>
                                             <td><?php echo htmlspecialchars(
-                                                $member->getUserName() . ' ' . $member->getUserPrenume()
+                                                $member->userName . ' ' . $member->userPrenume
                                             ); ?></td>
-                                            <td><?php echo htmlspecialchars($member->getRole()); ?></td>
+                                            <td><?php echo htmlspecialchars($member->role); ?></td>
                                             <td>
-                                                <textarea class="form-control" name="task_<?php echo $member->getUserId(); ?>" rows="2"><?php echo htmlspecialchars(
-    $tasks_by_user[$member->getUserId()] ?? ''
+                                                <textarea class="form-control" name="task_<?php echo $member->userId; ?>" rows="2"><?php echo htmlspecialchars(
+    $tasks_by_user[$member->userId] ?? ''
 ); ?></textarea>
                                             </td>
                                         </tr>

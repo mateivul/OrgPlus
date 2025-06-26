@@ -1,5 +1,8 @@
 
 <?php // src/Repository/UserRepository.php
+// src/Repository/UserRepository.php
+// src/Repository/UserRepository.php
+// src/Repository/UserRepository.php
 // No namespace or use statements
 
 class UserRepository
@@ -118,11 +121,11 @@ class UserRepository
         $currentTime = date('Y-m-d H:i:s');
         $stmt = $this->pdo->prepare('UPDATE users SET last_login_date = :lastLogin WHERE id = :id'); // <-- Nume coloană corectat
         $stmt->bindValue(':lastLogin', $currentTime);
-        $stmt->bindValue(':id', $user->getId(), PDO::PARAM_INT);
+        $stmt->bindValue(':id', $user->id, PDO::PARAM_INT);
 
         $result = $stmt->execute();
         if ($result) {
-            $user->setLastLoginDate($currentTime);
+            $user->lastLoginDate = $currentTime;
         }
         return $result;
     }
@@ -163,18 +166,18 @@ class UserRepository
                  VALUES (:first_name, :last_name, :email, :password_hash, :old_salt, :registration_date)'
             );
 
-            $stmt->bindValue(':first_name', $user->getFirstName());
-            $stmt->bindValue(':last_name', $user->getLastName());
-            $stmt->bindValue(':email', $user->getEmail());
-            $stmt->bindValue(':password_hash', $user->getPasswordHash());
-            $stmt->bindValue(':old_salt', $user->getOldSalt()); // Poate fi NULL
-            $stmt->bindValue(':registration_date', $user->getRegistrationDate() ?? date('Y-m-d H:i:s')); // Dă o valoare default dacă e null
+            $stmt->bindValue(':first_name', $user->firstName);
+            $stmt->bindValue(':last_name', $user->lastName);
+            $stmt->bindValue(':email', $user->email);
+            $stmt->bindValue(':password_hash', $user->passwordHash);
+            $stmt->bindValue(':old_salt', $user->oldSalt); // Poate fi NULL
+            $stmt->bindValue(':registration_date', $user->registrationDate ?? date('Y-m-d H:i:s')); // Dă o valoare default dacă e null
 
             $result = $stmt->execute();
 
             if ($result) {
-                $user->setId((int) $this->pdo->lastInsertId());
-                return $user->getId(); // Returnează ID-ul
+                $user->id = (int) $this->pdo->lastInsertId();
+                return $user->id; // Returnează ID-ul
             } else {
                 // Afișează erorile SQL
                 error_log('Eroare la execuția INSERT în UserRepository: ' . implode(' ', $stmt->errorInfo()));

@@ -11,9 +11,10 @@ if (!in_array($user_role, ['admin', 'owner'])) {
     die('Permisiuni insuficiente');
 }
 
-$orgRepository = getService('OrganizationRepository');
-$organization = $orgRepository->findById($org_id);
-$org_name = $organization ? $organization->getName() : 'Organizație necunoscută';
+$organizationRepository = getService('OrganizationRepository');
+$organization = $organizationRepository->findById($org_id);
+
+$org_name = $organization ? $organization->name : 'Organizație necunoscută';
 
 // Use PDO from a repository (e.g. WorkedHoursRepository)
 $workedHoursRepository = getService('WorkedHoursRepository');
@@ -32,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
 
     try {
         // Fetch the request and lock it for update
-        $stmt = $pdo->prepare("SELECT * FROM requests WHERE request_id = ? FOR UPDATE");
+        $stmt = $pdo->prepare('SELECT * FROM requests WHERE request_id = ? FOR UPDATE');
         $stmt->execute([$request_id]);
         $request = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -47,25 +48,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
             throw new Exception('Nu ai permisiunea să procesezi această solicitare.');
         }
 
-        $new_status = ($action === 'accept') ? 'accepted' : 'rejected';
-        $stmt = $pdo->prepare("UPDATE requests SET status = ? WHERE request_id = ?");
+        $new_status = $action === 'accept' ? 'accepted' : 'rejected';
+        $stmt = $pdo->prepare('UPDATE requests SET status = ? WHERE request_id = ?');
         $stmt->execute([$new_status, $request_id]);
 
         // If accepted, add user as member to roles if not already
         if ($action === 'accept') {
             $sender_user_id = $request['sender_user_id'];
-            $stmt = $pdo->prepare("SELECT 1 FROM roles WHERE org_id = ? AND user_id = ?");
+            $stmt = $pdo->prepare('SELECT 1 FROM roles WHERE org_id = ? AND user_id = ?');
             $stmt->execute([$org_id, $sender_user_id]);
             if (!$stmt->fetchColumn()) {
-                $stmt = $pdo->prepare("INSERT INTO roles (org_id, user_id, role, join_date) VALUES (?, ?, 'member', NOW())");
+                $stmt = $pdo->prepare(
+                    "INSERT INTO roles (org_id, user_id, role, join_date) VALUES (?, ?, 'member', NOW())"
+                );
                 $stmt->execute([$org_id, $sender_user_id]);
             }
         }
 
         $response['success'] = true;
-        $response['message'] = $action === 'accept'
-            ? 'Solicitarea a fost acceptată cu succes!'
-            : 'Solicitarea a fost respinsă cu succes!';
+        $response['message'] =
+            $action === 'accept' ? 'Solicitarea a fost acceptată cu succes!' : 'Solicitarea a fost respinsă cu succes!';
     } catch (Exception $e) {
         $response['error'] = true;
         $response['message'] = $e->getMessage();
@@ -160,12 +162,16 @@ $organization_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <?php if ($request['status'] === 'pending'): ?>
                                         <form method="post" class="d-inline form-process">
                                             <input type="hidden" name="action" value="accept">
-                                            <input type="hidden" name="request_id" value="<?php echo $request['request_id']; ?>">
+                                            <input type="hidden" name="request_id" value="<?php echo $request[
+                                                'request_id'
+                                            ]; ?>">
                                             <button type="submit" class="btn btn-success btn-sm btn-process">Acceptă</button>
                                         </form>
                                         <form method="post" class="d-inline ms-2 form-process">
                                             <input type="hidden" name="action" value="reject">
-                                            <input type="hidden" name="request_id" value="<?php echo $request['request_id']; ?>">
+                                            <input type="hidden" name="request_id" value="<?php echo $request[
+                                                'request_id'
+                                            ]; ?>">
                                             <button type="submit" class="btn btn-danger btn-sm btn-process">Refuză</button>
                                         </form>
                                     <?php endif; ?>

@@ -1,4 +1,3 @@
-
 <?php // No namespace or use statements
 // No namespace or use statements
 // No namespace or use statements
@@ -62,16 +61,16 @@ class EventRepository
                 VALUES (:name, :description, :date, :org_id, :created_by, :available_roles)";
         try {
             $stmt = $this->pdo->prepare($sql);
-            $stmt->bindValue(':name', $event->getName());
-            $stmt->bindValue(':description', $event->getDescription());
-            $stmt->bindValue(':date', $event->getDate());
-            $stmt->bindValue(':org_id', $event->getOrgId());
-            $stmt->bindValue(':created_by', $event->getCreatedBy());
-            $stmt->bindValue(':available_roles', $event->getAvailableRoles());
+            $stmt->bindValue(':name', $event->name);
+            $stmt->bindValue(':description', $event->description);
+            $stmt->bindValue(':date', $event->date);
+            $stmt->bindValue(':org_id', $event->orgId);
+            $stmt->bindValue(':created_by', $event->createdBy);
+            $stmt->bindValue(':available_roles', $event->availableRoles);
 
             if ($stmt->execute()) {
                 // Setează ID-ul pentru obiectul Event după inserare
-                $event->setId((int) $this->pdo->lastInsertId());
+                $event->id = (int) $this->pdo->lastInsertId();
                 return (int) $this->pdo->lastInsertId();
             }
             return false;
@@ -158,12 +157,12 @@ class EventRepository
                 WHERE id = :id AND org_id = :org_id";
         try {
             $stmt = $this->pdo->prepare($sql);
-            $stmt->bindValue(':name', $event->getName());
-            $stmt->bindValue(':description', $event->getDescription());
-            $stmt->bindValue(':date', $event->getDate());
-            $stmt->bindValue(':available_roles', $event->getAvailableRoles());
-            $stmt->bindValue(':id', $event->getId(), PDO::PARAM_INT);
-            $stmt->bindValue(':org_id', $event->getOrgId(), PDO::PARAM_INT);
+            $stmt->bindValue(':name', $event->name);
+            $stmt->bindValue(':description', $event->description);
+            $stmt->bindValue(':date', $event->date);
+            $stmt->bindValue(':available_roles', $event->availableRoles);
+            $stmt->bindValue(':id', $event->id, PDO::PARAM_INT);
+            $stmt->bindValue(':org_id', $event->orgId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
             error_log('Eroare la actualizarea evenimentului: ' . $e->getMessage());
@@ -249,6 +248,7 @@ class EventRepository
             return [];
         }
     }
+
     public function updateEventTask(int $taskId, string $taskDescription, int $assignedByUserId)
     {
         $sql =
@@ -259,6 +259,40 @@ class EventRepository
         $stmt->bindParam(':assignedByUserId', $assignedByUserId, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchColumn() > 0;
+    }
+
+    public function saveEventTask(EventTask $task): int|false
+    {
+        $sql = 'INSERT INTO event_tasks (event_id, user_id, task_description, assigned_by_user_id) 
+                VALUES (:event_id, :user_id, :task_description, :assigned_by_user_id)';
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':event_id', $task->eventId, PDO::PARAM_INT);
+            $stmt->bindValue(':user_id', $task->userId, PDO::PARAM_INT);
+            $stmt->bindValue(':task_description', $task->taskDescription, PDO::PARAM_STR);
+            $stmt->bindValue(':assigned_by_user_id', $task->assignedByUserId, PDO::PARAM_INT);
+
+            if ($stmt->execute()) {
+                return (int) $this->pdo->lastInsertId();
+            }
+            return false;
+        } catch (PDOException $e) {
+            error_log('Error saving event task: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteEventTask(int $taskId): bool
+    {
+        $sql = 'DELETE FROM event_tasks WHERE task_id = :taskId';
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':taskId', $taskId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log('Error deleting event task: ' . $e->getMessage());
+            return false;
+        }
     }
 
     // pt assign roles:

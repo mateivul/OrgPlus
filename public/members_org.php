@@ -25,7 +25,7 @@ if (!$currentUser) {
     exit();
 }
 
-$user_id = $currentUser->getId();
+$user_id = $currentUser->id;
 
 // Verifică dacă org_id este setată în sesiune
 if (!isset($_SESSION['org_id'])) {
@@ -38,9 +38,9 @@ $org_id = $_SESSION['org_id'];
 $organization = $organizationRepository->findById($org_id);
 if (!$organization) {
     header('Location: my_organizations.php?error=org_not_found');
-    exit();
+    exit('Organizația nu a fost găsită.');
 }
-$org_name = $organization->getName();
+$org_name = $organization->name;
 
 // Verifică rolul utilizatorului curent în organizație
 $user_role_in_org = $roleRepository->getUserRoleInOrganization($user_id, $org_id);
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response = [
                     'error' => true,
                     'message' => 'Adresă de email invalidă.',
-                    'field' => 'memberEmail'
+                    'field' => 'memberEmail',
                 ];
                 echo json_encode($response);
                 exit();
@@ -101,37 +101,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $response = [
                         'warning' => true,
                         'message' => 'Utilizatorul este deja membru al organizației.',
-                        'field' => 'memberEmail'
+                        'field' => 'memberEmail',
                     ];
                     echo json_encode($response);
                     exit();
                 }
                 // Check if there is already a pending or accepted invite/request
-                $sql_check_request = "SELECT 1 FROM requests WHERE request_type = 'organization_invite_manual' AND sender_user_id = ? AND receiver_user_id = ? AND organization_id = ? AND status IN ('pending', 'accepted')";
+                $sql_check_request =
+                    "SELECT 1 FROM requests WHERE request_type = 'organization_invite_manual' AND sender_user_id = ? AND receiver_user_id = ? AND organization_id = ? AND status IN ('pending', 'accepted')";
                 $stmt_check_request = $pdo->prepare($sql_check_request);
                 $stmt_check_request->execute([$user_id, $receiver_user_id, $org_id]);
                 if ($stmt_check_request->fetchColumn()) {
                     $response = [
                         'warning' => true,
                         'message' => 'O invitație a fost deja trimisă acestui utilizator sau a fost acceptată.',
-                        'field' => 'memberEmail'
+                        'field' => 'memberEmail',
                     ];
                     echo json_encode($response);
                     exit();
                 }
                 // Send invite
-                $sql_invite = "INSERT INTO requests (request_type, sender_user_id, receiver_user_id, organization_id, status) VALUES (?, ?, ?, ?, 'pending')";
+                $sql_invite =
+                    "INSERT INTO requests (request_type, sender_user_id, receiver_user_id, organization_id, status) VALUES (?, ?, ?, ?, 'pending')";
                 $stmt_invite = $pdo->prepare($sql_invite);
                 $invite_type = 'organization_invite_manual';
                 if ($stmt_invite->execute([$invite_type, $user_id, $receiver_user_id, $org_id])) {
                     $response = [
                         'success' => true,
-                        'message' => 'Invitația a fost trimisă cu succes!'
+                        'message' => 'Invitația a fost trimisă cu succes!',
                     ];
                 } else {
                     $response = [
                         'error' => true,
-                        'message' => 'Eroare la trimiterea invitației.'
+                        'message' => 'Eroare la trimiterea invitației.',
                     ];
                 }
                 echo json_encode($response);
@@ -140,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response = [
                     'error' => true,
                     'message' => 'Nu există un utilizator cu acest email.',
-                    'field' => 'memberEmail'
+                    'field' => 'memberEmail',
                 ];
                 echo json_encode($response);
                 exit();

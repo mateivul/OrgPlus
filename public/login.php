@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($user) {
             // Autentificare reușită
-            $_SESSION['user_id'] = $user->getId(); // <-- Asigură-te că această linie există
+            $_SESSION['user_id'] = $user->id; // <-- Asigură-te că această linie există
             header('Location: index.php'); // Redirecționare
             exit();
         } else {

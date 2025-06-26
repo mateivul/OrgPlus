@@ -11,9 +11,9 @@ if (!in_array($user_role, ['admin', 'owner'])) {
     die('Permisiuni insuficiente');
 }
 
-$orgRepository = getService('OrganizationRepository');
-$organization = $orgRepository->findById($org_id);
-$org_name = $organization ? $organization->getName() : 'Organizație necunoscută';
+$organizationRepository = getService('OrganizationRepository');
+$organization = $organizationRepository->findById($org_id);
+$org_name = $organization ? $organization->name : 'Organizație necunoscută';
 
 $workedHoursRepository = getService('WorkedHoursRepository');
 
@@ -75,11 +75,14 @@ $report = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?php echo number_format($row['total_hours'], 1); ?></td>
                                 <td><?php echo $row['members_count']; ?></td>
                                 <td>
-                                    <a href="monthly_hours_report.php?org_id=<?php echo $org_id; ?>&year=<?php echo $row['year']; ?>&month=<?php echo $row['month']; ?>" 
+                                    <a href="monthly_hours_report.php?org_id=<?php echo $org_id; ?>&year=<?php echo $row[
+    'year'
+]; ?>&month=<?php echo $row['month']; ?>" 
                                        class="btn btn-sm btn-outline-info">Detalii</a>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php
+                        endforeach; ?>
                     </tbody>
                 </table>
             </div>

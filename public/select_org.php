@@ -27,4 +27,3 @@ $_SESSION['org_id'] = $org_id;
 // Redirecționează către dashboard-ul organizației
 header('Location: dashboard.php');
 exit();
-?>
