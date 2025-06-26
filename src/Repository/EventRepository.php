@@ -295,13 +295,26 @@ class EventRepository
         }
     }
 
+    public function deleteAllTasksForEvent(int $eventId): bool
+    {
+        $sql = 'DELETE FROM event_tasks WHERE event_id = :event_id';
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':event_id', $eventId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log('Eroare la ștergerea task-urilor pentru evenimentul ' . $eventId . ': ' . $e->getMessage());
+            return false;
+        }
+    }
+
     // pt assign roles:
     public function updateAvailableRoles(int $eventId, string $availableRolesString): bool
     {
-        $sql = 'UPDATE events SET available_roles = :availableRoles WHERE id = :eventId';
+        $sql = 'UPDATE events SET available_roles = :available_roles WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':availableRoles', $availableRolesString, PDO::PARAM_STR);
-        $stmt->bindValue(':eventId', $eventId, PDO::PARAM_INT);
+        $stmt->bindValue(':available_roles', $availableRolesString, PDO::PARAM_STR);
+        $stmt->bindValue(':id', $eventId, PDO::PARAM_INT);
         try {
             return $stmt->execute();
         } catch (\PDOException $e) {

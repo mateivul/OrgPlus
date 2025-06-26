@@ -21,6 +21,7 @@ require_once __DIR__ . '/Config/Database.php';
 // Manual require for entities and models (no namespaces, no autoload)
 require_once __DIR__ . '/Model/User.php';
 require_once __DIR__ . '/Model/Organization.php';
+require_once __DIR__ . '/Entity/Role.php';
 require_once __DIR__ . '/Entity/Event.php';
 require_once __DIR__ . '/Entity/EventRole.php';
 require_once __DIR__ . '/Entity/EventTask.php';
