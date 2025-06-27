@@ -26,6 +26,7 @@ $sql = "
         o.name AS organization_name,
         r.event_id,
         e.name AS event_name,
+        e.date AS event_date,
         r.sender_user_id,
         s.name AS sender_name,
         s.prenume AS sender_prenume
@@ -150,7 +151,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
                 <?php else: ?>
                     <ul class="list-group">
                         <?php foreach ($personal_requests as $request): ?>
-                            <li class="list-group-item <?php echo 'bg-' . $request['status']; ?> text-light mb-2">
+                            <?php
+                            $is_expired = false;
+                            $now = new DateTime();
+                            $request_status = $request['status'];
+
+                            if ($request_status === 'pending') {
+                                if ($request['request_type'] === 'event_invitation' && !empty($request['event_date'])) {
+                                    $event_date = new DateTime($request['event_date']);
+                                    $expiration_date = (clone $event_date)->modify('-2 days');
+                                    if ($now > $expiration_date) {
+                                        $is_expired = true;
+                                        $request_status = 'expired';
+                                    }
+                                } elseif ($request['request_type'] === 'organization_invite_manual') {
+                                    $created_at = new DateTime($request['created_at']);
+                                    if ($created_at->diff($now)->days > 7) {
+                                        $is_expired = true;
+                                        $request_status = 'expired';
+                                    }
+                                }
+                            }
+                            $status_map = [
+                                'pending' => ['label' => 'În așteptare', 'class' => 'warning'],
+                                'accepted' => ['label' => 'Acceptată', 'class' => 'success'],
+                                'rejected' => ['label' => 'Refuzată', 'class' => 'danger'],
+                                'expired' => ['label' => 'Expirată', 'class' => 'secondary'],
+                            ];
+                            $status_info = $status_map[$request_status] ?? ['label' => 'Necunoscut', 'class' => 'dark'];
+                            ?>
+
+                            <li class="list-group-item bg-dark text-light mb-2 shadow-sm">
                                 <div class="d-flex justify-content-between">
                                     <div>
                                         <?php if ($request['request_type'] === 'event_invitation'): ?>
@@ -185,13 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
                                     <small><?php echo date('d.m.Y H:i', strtotime($request['created_at'])); ?></small>
                                 </div>
                                 <div class="mt-2">
-                                    <?php if (
-                                        in_array($request['request_type'], [
-                                            'event_invitation',
-                                            'organization_invite_manual',
-                                        ]) &&
-                                        $request['status'] === 'pending'
-                                    ): ?>
+                                    <?php if ($request['status'] === 'pending' && !$is_expired): ?>
                                         <form method="post" class="d-inline form-process">
                                             <input type="hidden" name="action" value="accept">
                                             <input type="hidden" name="request_id" value="<?php echo $request[
@@ -207,16 +232,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
                                             <button type="submit" class="btn btn-danger btn-sm btn-process">Refuză</button>
                                         </form>
                                     <?php endif; ?>
-                                    <span class="ms-3 badge bg-<?php echo $request['status'] === 'accepted'
-                                        ? 'success'
-                                        : ($request['status'] === 'rejected'
-                                            ? 'danger'
-                                            : 'warning'); ?>">
-                                        <?php echo $request['status'] === 'accepted'
-                                            ? 'Acceptată'
-                                            : ($request['status'] === 'rejected'
-                                                ? 'Refuzată'
-                                                : 'În așteptare'); ?>
+                                    <span class="ms-3 badge bg-<?php echo $status_info['class']; ?>">
+                                        <?php echo $status_info['label']; ?>
                                     </span>
                                 </div>
                             </li>

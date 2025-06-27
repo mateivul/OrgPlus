@@ -35,6 +35,43 @@ class RequestRepository
         return $stmt->execute([$requestType, $userId, $organizationId]);
     }
 
+    public function create(Request $request): bool
+    {
+        $sql = "INSERT INTO requests (request_type, sender_user_id, receiver_user_id, organization_id, event_id, status, created_at)
+                VALUES (:request_type, :sender_user_id, :receiver_user_id, :organization_id, :event_id, :status, :created_at)";
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute([
+                'request_type' => $request->requestType,
+                'sender_user_id' => $request->senderUserId,
+                'receiver_user_id' => $request->receiverUserId,
+                'organization_id' => $request->organizationId,
+                'event_id' => $request->eventId,
+                'status' => $request->status,
+                'created_at' => $request->createdAt,
+            ]);
+        } catch (PDOException $e) {
+            error_log('Eroare la crearea cererii: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function findPendingInvite(int $receiverUserId, int $organizationId): bool
+    {
+        $sql = "
+            SELECT 1 FROM requests
+            WHERE receiver_user_id = :receiver_user_id
+            AND organization_id = :organization_id
+            AND request_type = 'organization_invite_manual'
+            AND status IN ('pending', 'accepted')
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':receiver_user_id', $receiverUserId, PDO::PARAM_INT);
+        $stmt->bindParam(':organization_id', $organizationId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchColumn() !== false;
+    }
+
     public function save(Request $request): bool
     {
         $sql = "INSERT INTO requests (request_type, sender_user_id, receiver_user_id, organization_id, event_id, status, created_at)

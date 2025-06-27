@@ -140,6 +140,26 @@ $organization_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php else: ?>
                     <ul class="list-group">
                         <?php foreach ($organization_requests as $request): ?>
+                            <?php
+                            $is_expired = false;
+                            $now = new DateTime();
+                            $request_status = $request['status'];
+
+                            if ($request_status === 'pending') {
+                                $created_at = new DateTime($request['created_at']);
+                                if ($created_at->diff($now)->days > 7) {
+                                    $is_expired = true;
+                                    $request_status = 'expired';
+                                }
+                            }
+                            $status_map = [
+                                'pending' => ['label' => 'În așteptare', 'class' => 'warning'],
+                                'accepted' => ['label' => 'Acceptată', 'class' => 'success'],
+                                'rejected' => ['label' => 'Refuzată', 'class' => 'danger'],
+                                'expired' => ['label' => 'Expirată', 'class' => 'secondary'],
+                            ];
+                            $status_info = $status_map[$request_status] ?? ['label' => 'Necunoscut', 'class' => 'dark'];
+                            ?>
                             <li class="list-group-item bg-dark text-light mb-2">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -158,32 +178,24 @@ $organization_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <small><?php echo date('d.m.Y H:i', strtotime($request['created_at'])); ?></small>
                                 </div>
                                 <div class="mt-2">
-                                    <?php if ($request['status'] === 'pending'): ?>
+                                    <?php if ($request['status'] === 'pending' && !$is_expired): ?>
                                         <form method="post" class="d-inline form-process">
                                             <input type="hidden" name="action" value="accept">
                                             <input type="hidden" name="request_id" value="<?php echo $request[
-                                                'request_id'
+                                                'id'
                                             ]; ?>">
                                             <button type="submit" class="btn btn-success btn-sm btn-process">Acceptă</button>
                                         </form>
                                         <form method="post" class="d-inline ms-2 form-process">
                                             <input type="hidden" name="action" value="reject">
                                             <input type="hidden" name="request_id" value="<?php echo $request[
-                                                'request_id'
+                                                'id'
                                             ]; ?>">
                                             <button type="submit" class="btn btn-danger btn-sm btn-process">Refuză</button>
                                         </form>
                                     <?php endif; ?>
-                                    <span class="ms-3 badge bg-<?php echo $request['status'] === 'accepted'
-                                        ? 'success'
-                                        : ($request['status'] === 'rejected'
-                                            ? 'danger'
-                                            : 'warning'); ?>">
-                                        <?php echo $request['status'] === 'accepted'
-                                            ? 'Acceptată'
-                                            : ($request['status'] === 'rejected'
-                                                ? 'Refuzată'
-                                                : 'În așteptare'); ?>
+                                    <span class="ms-3 badge bg-<?php echo $status_info['class']; ?>">
+                                        <?php echo $status_info['label']; ?>
                                     </span>
                                 </div>
                             </li>

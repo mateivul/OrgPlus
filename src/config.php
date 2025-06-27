@@ -55,6 +55,7 @@ require_once __DIR__ . '/Service/OrganizationService.php';
 require_once __DIR__ . '/Service/RequestService.php';
 require_once __DIR__ . '/Service/EventService.php';
 require_once __DIR__ . '/Service/WorkedHoursService.php';
+require_once __DIR__ . '/Service/UserService.php';
 
 // Security
 require_once __DIR__ . '/Security/CsrfToken.php';
@@ -84,6 +85,7 @@ $container['WorkedHoursRepository'] = new WorkedHoursRepository($pdo);
 // --- Servicii ---
 // Asigură-te că toți constructorii serviciilor au dependențele corecte
 $container['AuthService'] = new AuthService($container['UserRepository']);
+$container['UserService'] = new UserService($container['UserRepository']);
 
 $container['OrganizationService'] = new OrganizationService(
     $container['OrganizationRepository'],

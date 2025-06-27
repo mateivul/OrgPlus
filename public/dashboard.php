@@ -3,12 +3,10 @@
 require_once __DIR__ . '/../src/config.php';
 
 // Inițializăm dependențele
-$pdo = Database::getConnection();
-$userRepository = new UserRepository($pdo);
-$authService = new AuthService($userRepository);
-$organizationRepository = new OrganizationRepository($pdo);
-$roleRepository = new RoleRepository($pdo);
-$eventRepository = new EventRepository($pdo);
+$authService = getService('AuthService');
+$organizationRepository = getService('OrganizationRepository');
+$roleRepository = getService('RoleRepository');
+$eventRepository = getService('EventRepository');
 
 // --- Protecția paginii: Doar pentru utilizatori autentificați ---
 $currentUser = $authService->getCurrentUser();

@@ -1,10 +1,7 @@
 <?php
 require_once __DIR__ . '/../src/config.php';
 
-$pdo = Database::getConnection();
-$userRepository = new UserRepository($pdo);
-$authService = new AuthService($userRepository);
-// $roleRepository = new App\Repository\RoleRepository($pdo); // Nu mai e necesar aici
+$authService = getService('AuthService');
 
 // --- Protecția paginii: Doar utilizatori autentificați pot selecta o org ---
 $currentUser = $authService->getCurrentUser();

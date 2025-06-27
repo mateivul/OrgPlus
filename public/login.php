@@ -5,9 +5,7 @@ require_once __DIR__ . '/../src/config.php';
 $error = '';
 
 // Inițializăm dependențele
-$pdo = Database::getConnection(); // Obținem conexiunea PDO (singleton)
-$userRepository = new UserRepository($pdo);
-$authService = new AuthService($userRepository);
+$authService = getService('AuthService');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validare CSRF

@@ -4,17 +4,8 @@ require_once __DIR__ . '/../src/config.php';
 $error = '';
 $success = '';
 // Inițializăm dependențele
-$pdo = Database::getConnection();
-
-if (!$pdo) {
-    echo 'DEBUG EROARE: Conexiunea la baza de date a eșuat. Verifică Database.php.<br>';
-    exit();
-} else {
-    echo 'DEBUG: Conexiune la baza de date stabilită cu succes.<br>'; // Mesaj de succes
-}
-
-$userRepository = new UserRepository($pdo);
-$userService = new UserService($userRepository); // Instanțiem UserService
+$userService = getService('UserService');
+$userRepository = getService('UserRepository');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validare CSRF
@@ -44,12 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: login.php?registered=true'); // Adaugăm un parametru pentru mesaj
                 exit();
             } else {
-                // Înregistrarea a eșuat, probabil email-ul există deja sau eroare la bază de date
-                // UserService ar returna null dacă email-ul există deja.
-                // Putem face o verificare mai specifică dacă vrem mesaje de eroare diferite.
-                // Pentru simplitate acum, un mesaj generic.
+                // Verificăm dacă eroarea a fost cauzată de un email duplicat
                 if ($userRepository->findByEmail($email)) {
-                    // Verificăm din nou pentru a da un mesaj mai specific
                     $error = 'Acest email este deja folosit.';
                 } else {
                     $error = 'Eroare la înregistrare. Încercați din nou.';

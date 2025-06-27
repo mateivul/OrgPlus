@@ -3,20 +3,11 @@
 require_once __DIR__ . '/../src/config.php';
 
 // Inițializăm dependențele
-$pdo = Database::getConnection();
-$userRepository = new UserRepository($pdo);
-$organizationRepository = new OrganizationRepository($pdo);
-$roleRepository = new RoleRepository($pdo);
-$eventRepository = new EventRepository($pdo);
-$requestRepository = new RequestRepository($pdo); // Inițializăm RequestRepository
-$authService = new AuthService($userRepository);
-// Aici instanțiem noul service pentru managementul membrilor
-$organizationService = new OrganizationService(
-    $organizationRepository,
-    $userRepository,
-    $roleRepository,
-    $requestRepository
-);
+$authService = getService('AuthService');
+$organizationService = getService('OrganizationService');
+$organizationRepository = getService('OrganizationRepository');
+$roleRepository = getService('RoleRepository');
+$requestService = getService('RequestService');
 
 // --- Protecția paginii: Doar pentru utilizatori autentificați ---
 $currentUser = $authService->getCurrentUser();
@@ -73,7 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $response['message'] = 'Rolul membrului a fost actualizat cu succes!';
         } elseif (isset($_POST['invite_member_email']) && $is_admin) {
             $member_email = filter_var($_POST['invite_member_email'], FILTER_SANITIZE_EMAIL);
-            $member_role = $_POST['memberRole'] ?? 'member';
 
             if (!filter_var($member_email, FILTER_VALIDATE_EMAIL)) {
                 $response = [
@@ -81,72 +71,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'message' => 'Adresă de email invalidă.',
                     'field' => 'memberEmail',
                 ];
-                echo json_encode($response);
-                exit();
-            }
-
-            // Check if user already exists
-            $sql_check_user = 'SELECT id FROM users WHERE email = ?';
-            $stmt_check_user = $pdo->prepare($sql_check_user);
-            $stmt_check_user->execute([$member_email]);
-            $user_data = $stmt_check_user->fetch(PDO::FETCH_ASSOC);
-
-            if ($user_data) {
-                $receiver_user_id = $user_data['id'];
-                // Check if already a member
-                $sql_check_member = 'SELECT 1 FROM roles WHERE user_id = ? AND org_id = ?';
-                $stmt_check_member = $pdo->prepare($sql_check_member);
-                $stmt_check_member->execute([$receiver_user_id, $org_id]);
-                if ($stmt_check_member->fetchColumn()) {
-                    $response = [
-                        'warning' => true,
-                        'message' => 'Utilizatorul este deja membru al organizației.',
-                        'field' => 'memberEmail',
-                    ];
-                    echo json_encode($response);
-                    exit();
-                }
-                // Check if there is already a pending or accepted invite/request
-                $sql_check_request =
-                    "SELECT 1 FROM requests WHERE request_type = 'organization_invite_manual' AND sender_user_id = ? AND receiver_user_id = ? AND organization_id = ? AND status IN ('pending', 'accepted')";
-                $stmt_check_request = $pdo->prepare($sql_check_request);
-                $stmt_check_request->execute([$user_id, $receiver_user_id, $org_id]);
-                if ($stmt_check_request->fetchColumn()) {
-                    $response = [
-                        'warning' => true,
-                        'message' => 'O invitație a fost deja trimisă acestui utilizator sau a fost acceptată.',
-                        'field' => 'memberEmail',
-                    ];
-                    echo json_encode($response);
-                    exit();
-                }
-                // Send invite
-                $sql_invite =
-                    "INSERT INTO requests (request_type, sender_user_id, receiver_user_id, organization_id, status) VALUES (?, ?, ?, ?, 'pending')";
-                $stmt_invite = $pdo->prepare($sql_invite);
-                $invite_type = 'organization_invite_manual';
-                if ($stmt_invite->execute([$invite_type, $user_id, $receiver_user_id, $org_id])) {
-                    $response = [
-                        'success' => true,
-                        'message' => 'Invitația a fost trimisă cu succes!',
-                    ];
-                } else {
-                    $response = [
-                        'error' => true,
-                        'message' => 'Eroare la trimiterea invitației.',
-                    ];
-                }
-                echo json_encode($response);
-                exit();
             } else {
-                $response = [
-                    'error' => true,
-                    'message' => 'Nu există un utilizator cu acest email.',
-                    'field' => 'memberEmail',
-                ];
-                echo json_encode($response);
-                exit();
+                $response = $requestService->inviteUserToOrganization($member_email, $org_id, $user_id);
             }
+            echo json_encode($response);
+            exit();
         } else {
             // Nu se potrivește nicio acțiune POST validă
             $response['error'] = true;
