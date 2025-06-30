@@ -1,4 +1,4 @@
-<?php // No namespace or use statements
+<?php
 
 class EventRoleRepository
 {
@@ -9,12 +9,6 @@ class EventRoleRepository
         $this->pdo = $pdo;
     }
 
-    /**
-     * Salvează un obiect EventRole nou în baza de date.
-     *
-     * @param EventRole $eventRole
-     * @return bool
-     */
     public function save(EventRole $eventRole): bool
     {
         $sql = "INSERT INTO event_roles (user_id, event_id, role)
@@ -26,24 +20,15 @@ class EventRoleRepository
             $stmt->bindValue(':role', $eventRole->role);
             return $stmt->execute();
         } catch (PDOException $e) {
-            // Ignoră eroarea de duplicat (UNIQUE constraint)
             if ($e->getCode() === '23000') {
-                // SQLSTATE for Integrity Constraint Violation
-                error_log('Tentativă de a insera rol de eveniment duplicat (ignorat): ' . $e->getMessage());
-                return true; // Considerăm succes chiar dacă a fost duplicat
+                error_log('Attempt to insert duplicate event role (ignored): ' . $e->getMessage());
+                return true;
             }
-            error_log('Eroare la salvarea rolului de eveniment: ' . $e->getMessage());
+            error_log('Error saving event role: ' . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Găsește rolurile unui utilizator pentru un eveniment specific.
-     *
-     * @param int $userId
-     * @param int $eventId
-     * @return EventRole[]
-     */
     public function findRolesByUserIdAndEventId(int $userId, int $eventId): array
     {
         $sql = 'SELECT * FROM event_roles WHERE user_id = :user_id AND event_id = :event_id';
@@ -64,12 +49,6 @@ class EventRoleRepository
         return $roles;
     }
 
-    /**
-     * Găsește toți utilizatorii și rolurile lor pentru un eveniment.
-     *
-     * @param int $eventId
-     * @return EventRole[]
-     */
     public function findUsersWithRolesByEventId(int $eventId): array
     {
         $sql =
@@ -94,14 +73,6 @@ class EventRoleRepository
         return $results;
     }
 
-    /**
-     * Șterge un rol specific pentru un utilizator într-un eveniment.
-     *
-     * @param int $userId
-     * @param int $eventId
-     * @param string $role
-     * @return bool
-     */
     public function deleteRole(int $userId, int $eventId, string $role): bool
     {
         $sql = 'DELETE FROM event_roles WHERE user_id = :user_id AND event_id = :event_id AND role = :role';
@@ -112,18 +83,11 @@ class EventRoleRepository
             $stmt->bindParam(':role', $role, PDO::PARAM_STR);
             return $stmt->execute();
         } catch (PDOException $e) {
-            error_log('Eroare la ștergerea rolului de eveniment: ' . $e->getMessage());
+            error_log('Error deleting event role: ' . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Șterge toate rolurile unui utilizator pentru un eveniment.
-     *
-     * @param int $userId
-     * @param int $eventId
-     * @return bool
-     */
     public function deleteAllUserRolesForEvent(int $userId, int $eventId): bool
     {
         $sql = 'DELETE FROM event_roles WHERE user_id = :user_id AND event_id = :event_id';
@@ -133,17 +97,11 @@ class EventRoleRepository
             $stmt->bindParam(':event_id', $eventId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
-            error_log('Eroare la ștergerea tuturor rolurilor utilizatorului pentru eveniment: ' . $e->getMessage());
+            error_log('Error deleting all user roles for event: ' . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Șterge toate rolurile pentru un eveniment.
-     *
-     * @param int $eventId
-     * @return bool
-     */
     public function deleteAllRolesForEvent(int $eventId): bool
     {
         $sql = 'DELETE FROM event_roles WHERE event_id = :event_id';
@@ -152,7 +110,7 @@ class EventRoleRepository
             $stmt->bindParam(':event_id', $eventId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
-            error_log('Eroare la ștergerea tuturor rolurilor pentru eveniment: ' . $e->getMessage());
+            error_log('Error deleting all roles for event: ' . $e->getMessage());
             return false;
         }
     }
@@ -204,13 +162,7 @@ class EventRoleRepository
             return [];
         }
     }
-    /**
-     * Verifică dacă un utilizator este participant la un eveniment (are un rol atribuit în event_roles).
-     *
-     * @param int $userId
-     * @param int $eventId
-     * @return bool
-     */
+
     public function isUserAssignedToEventRole(int $userId, int $eventId): bool
     {
         $sql = 'SELECT COUNT(*) FROM event_roles WHERE user_id = :user_id AND event_id = :event_id';
@@ -221,7 +173,6 @@ class EventRoleRepository
         return $stmt->fetchColumn() > 0;
     }
 
-    // pt assign roles:
     public function findEligibleMembersWithEventRoles(int $orgId, int $eventId, int $eventCreatorId): array
     {
         $sql = "
@@ -232,17 +183,24 @@ class EventRoleRepository
                 COALESCE(er.role, '') AS role,
                 (u.id = :eventCreatorId) AS is_creator
             FROM users u
-            -- Join cu cererile de invitatie la eveniment care au fost acceptate
-            INNER JOIN requests req ON u.id = req.receiver_user_id
-                AND req.event_id = :eventId
-                AND req.request_type = 'event_invitation'
-                AND req.status = 'accepted'
-            -- Left Join cu rolurile evenimentului pentru a prelua rolul curent, dacă există
-            LEFT JOIN event_roles er ON u.id = er.user_id AND er.event_id = :eventId2
-            
+            -- Participanți proveniți fie din invitații ACCEPTATE, fie deja existenți în event_roles
+            INNER JOIN (
+                SELECT receiver_user_id AS user_id
+                FROM requests
+                WHERE event_id = :eventId
+                  AND request_type = 'event_invitation'
+                  AND status = 'accepted'
+                UNION
+                SELECT user_id
+                FROM event_roles
+                WHERE event_id = :eventId2
+            ) participants ON participants.user_id = u.id
+            -- Rolul curent (dacă există)
+            LEFT JOIN event_roles er ON u.id = er.user_id AND er.event_id = :eventId3
+
             UNION
-            
-            -- Adaugă explicit creatorul evenimentului, care este mereu eligibil
+
+            -- Adaugă explicit creatorul evenimentului
             SELECT
                 u.id,
                 u.name,
@@ -250,19 +208,20 @@ class EventRoleRepository
                 COALESCE(er.role, '') AS role,
                 1 AS is_creator
             FROM users u
-            LEFT JOIN event_roles er ON u.id = er.user_id AND er.event_id = :eventId3
+            LEFT JOIN event_roles er ON u.id = er.user_id AND er.event_id = :eventId4
             WHERE u.id = :eventCreatorId2
-            
+
             ORDER BY is_creator DESC, name ASC, prenume ASC
         ";
 
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':eventCreatorId', $eventCreatorId, PDO::PARAM_INT);
+            $stmt->bindParam(':eventCreatorId2', $eventCreatorId, PDO::PARAM_INT);
             $stmt->bindParam(':eventId', $eventId, PDO::PARAM_INT);
             $stmt->bindParam(':eventId2', $eventId, PDO::PARAM_INT);
-            $stmt->bindParam(':eventCreatorId2', $eventCreatorId, PDO::PARAM_INT);
             $stmt->bindParam(':eventId3', $eventId, PDO::PARAM_INT);
+            $stmt->bindParam(':eventId4', $eventId, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -270,6 +229,7 @@ class EventRoleRepository
             return [];
         }
     }
+
     public function assignOrUpdateEventRole(int $eventId, int $userId, string $role): bool
     {
         $sql = 'INSERT INTO event_roles (event_id, user_id, role) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE role = ?';
@@ -281,6 +241,7 @@ class EventRoleRepository
             return false;
         }
     }
+
     public function deleteEventRole(int $eventId, int $userId): bool
     {
         $sql = 'DELETE FROM event_roles WHERE event_id = ? AND user_id = ?';

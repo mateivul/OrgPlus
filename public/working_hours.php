@@ -1,43 +1,30 @@
 <?php
 require_once __DIR__ . '/../src/config.php';
 
-// 2. Get the necessary services/repositories from your container
-/** @var AuthService $authService */
 $authService = getService('AuthService');
-/** @var RoleRepository $roleRepository */
 $roleRepository = getService('RoleRepository');
-/** @var OrganizationService $organizationService */
-$organizationService = getService('OrganizationService'); // Needed for organization name
-/** @var WorkedHoursService $workedHoursService */
+$organizationService = getService('OrganizationService');
 $workedHoursService = getService('WorkedHoursService');
-/** @var EventService $eventService */
-$eventService = getService('EventService'); // Needed for total events count
+$eventService = getService('EventService');
 
-// Ensure user is logged in and an organization is selected
 $user_id = ensure_logged_in();
 $org_id = ensure_existing_org();
 
-// Get user role in the current organization
 $user_role = $roleRepository->getUserRoleInOrganization($user_id, $org_id);
 $is_admin = in_array($user_role, ['admin', 'owner']);
 
-// Access control: only admins/owners can access this page
 if (!$is_admin) {
-    // Ideally, redirect or show an access denied message
-    header('Location: dashboard.php?error=no_permission'); // Redirect to dashboard or error page
+    header('Location: dashboard.php?error=no_permission');
     exit('Permisiuni insuficiente');
 }
 
-// Get organization name for display
 $organization = $organizationService->getOrganizationById($org_id);
 $org_name = $organization ? $organization->name : 'Organizație Necunoscută';
 
-// Handle AJAX POST requests for adding worked hours
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     $response = ['success' => false, 'message' => ''];
 
-    // Try to decode JSON input (for toggle_member_status)
     $input = json_decode(file_get_contents('php://input'), true);
 
     if (isset($input['action']) && $input['action'] === 'toggle_member_status' && $is_admin) {
@@ -59,22 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Otherwise, handle form POST (add_hours)
     if (isset($_POST['action']) && $_POST['action'] === 'add_hours' && $is_admin) {
         $member_id = intval($_POST['member_id'] ?? 0);
         $hours = floatval($_POST['hours'] ?? 0);
         $work_date = $_POST['work_date'] ?? '';
         $description = $_POST['description'] ?? '';
 
-        $result = $workedHoursService->addWorkedHours(
-            $member_id,
-            $org_id,
-            $hours,
-            $work_date,
-            $user_id, // The current user who is recording the hours
-            $description
-        );
-        $response = $result; // Result from service already contains success/message
+        $result = $workedHoursService->addWorkedHours($member_id, $org_id, $hours, $work_date, $user_id, $description);
+        $response = $result;
     } else {
         $response['message'] = 'Acțiune invalidă sau permisiuni insuficiente.';
     }
@@ -83,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
-// Fetch members for the "Add Hours" form and statistics table
 try {
     $membersData = $workedHoursService->getMembersWithContribution($org_id);
 } catch (Exception $e) {
@@ -91,7 +69,6 @@ try {
     $membersData = [];
 }
 
-// Fetch all members in the organization for status display
 $members = $roleRepository->getMembersByOrganization($org_id);
 ?>
 
@@ -217,19 +194,17 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
 
         const formData = new FormData(addHoursForm);
-        // Add a specific action to the form data for server-side routing
         formData.append('action', 'add_hours');
 
         fetch('working_hours.php', {
             method: 'POST',
             body: formData,
             headers: {
-                'X-Requested-With': 'XMLHttpRequest' // Still send this if your server relies on it
+                'X-Requested-With': 'XMLHttpRequest' 
             }
         })
         .then(response => {
             if (!response.ok) {
-                // If response is not OK (e.g., 500 error), parse it as text for debugging
                 return response.text().then(text => { throw new Error(text) });
             }
             return response.json();
@@ -279,14 +254,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 cancelButtonText: 'Nu'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('working_hours.php', { // Send to the same page
+                    fetch('working_hours.php', { 
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: JSON.stringify({
-                            action: 'toggle_member_status', // Add action
+                            action: 'toggle_member_status', 
                             member_id: memberId,
                             org_id: orgId,
                             new_status: newStatus

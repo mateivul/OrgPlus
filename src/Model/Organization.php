@@ -1,7 +1,5 @@
 <?php
 
-// namespace App\Model;
-
 class Organization
 {
     public int $id;
@@ -10,9 +8,7 @@ class Organization
     public ?string $website;
     public ?string $createdAt;
     public int $ownerId;
-    // Puteți adăuga și alte proprietăți (created_at, updated_at etc.)
 
-    // Proprietăți temporare pentru a le folosi în view, populat de OrganizationRepository
     public bool $isEnrolled;
     public bool $isRequestPending;
     public ?string $userRole;

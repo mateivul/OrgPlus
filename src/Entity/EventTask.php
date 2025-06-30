@@ -2,14 +2,13 @@
 
 class EventTask
 {
-    // For display names (avoid dynamic property deprecation)
     public string $userAssignedName = '';
     public string $assignerName = '';
     public ?int $taskId;
     public int $eventId;
-    public int $userId; // User who is assigned the task
+    public int $userId;
     public string $taskDescription;
-    public int $assignedByUserId; // User who assigned the task
+    public int $assignedByUserId;
     public ?string $createdAt;
 
     public function __construct(

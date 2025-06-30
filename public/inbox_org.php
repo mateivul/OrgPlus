@@ -15,11 +15,8 @@ $organization = $organizationRepository->findById($org_id);
 
 $org_name = $organization ? $organization->name : 'Organizație necunoscută';
 
-// Use PDO from a repository (e.g. WorkedHoursRepository)
 $workedHoursRepository = getService('WorkedHoursRepository');
-$pdo = $workedHoursRepository->getPdo();
 
-// Filtering logic
 $allowed_filters = ['all', 'pending', 'accepted', 'rejected'];
 $filter = isset($_GET['filter']) && in_array($_GET['filter'], $allowed_filters) ? $_GET['filter'] : 'all';
 

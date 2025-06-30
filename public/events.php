@@ -2,31 +2,18 @@
 
 require_once __DIR__ . '/../src/config.php';
 
-// 2. Get the necessary services/repositories from your container
-//    These variables must be available to sidebar.php
 $authService = getService('AuthService');
-$roleRepository = getService('RoleRepository'); // sidebar uses this too
-
-ensure_logged_in();
-ensure_existing_org(); // This also relies on $_SESSION['org_id']
-
-// use App\Entity\Event; // Importul clasei Event - Autoloader-ul va găsi fișierul App/Entity/Event.php
-// use App\Service\EventService;
-// use App\Service\OrganizationService;
-
-// Obtain necessary services from the container
-/** @var EventService $eventService */
-$eventService = getService('EventService');
-/** @var OrganizationService $organizationService */
-$organizationService = getService('OrganizationService');
-/** @var RoleRepository $roleRepository */
 $roleRepository = getService('RoleRepository');
 
-// These functions come from app_helpers.php and handle redirects if conditions aren't met
-$user_id = ensure_logged_in(); // This function will redirect to login.php if no user is logged in
-$org_id = ensure_existing_org(); // This function might redirect if no organization is selected/exists
+ensure_logged_in();
+ensure_existing_org();
 
-// If we reach here, user_id and org_id are valid based on the helper functions' logic.
+$eventService = getService('EventService');
+$organizationService = getService('OrganizationService');
+$roleRepository = getService('RoleRepository');
+
+$user_id = ensure_logged_in();
+$org_id = ensure_existing_org();
 
 $user_role = $roleRepository->getUserRoleInOrganization($user_id, $org_id);
 $is_admin = in_array($user_role, ['admin', 'owner']);
@@ -49,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             exit();
         }
 
-        // Curățarea rolurilor
         $roles = explode(',', $roles_input);
         $processed_roles = [];
         foreach ($roles as $role) {
@@ -66,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $event_description,
                 $event_date,
                 $org_id,
-                $user_id, // This should be $user_id, the one who creates the event
+                $user_id,
                 $roles_input_cleaned
             );
 
@@ -81,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         } catch (Exception $e) {
             $response['error'] = true;
             $response['message'] = 'Eroare la crearea evenimentului: ' . $e->getMessage();
-            error_log('Event creation error: ' . $e->getMessage()); // Log the error for debugging
+            error_log('Event creation error: ' . $e->getMessage());
         }
         echo json_encode($response);
         exit();
@@ -93,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit();
 }
 
-// Preluarea evenimentelor pentru afișare
 try {
     $events = $eventService->getEventsForOrganization($org_id);
 } catch (Exception $e) {
@@ -200,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const formData = new FormData(this);
 
-            fetch('', { // Send to the same page (events.php)
+            fetch('', { 
                 method: 'POST',
                 body: formData
             })

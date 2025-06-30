@@ -19,14 +19,12 @@ function ensure_user_data(&$user_array)
     }
 }
 
-// Fetch user data
 $sql_user = 'SELECT name, prenume, email, created_at FROM users WHERE id = ?';
 $stmt_user = $pdo->prepare($sql_user);
 $stmt_user->execute([$user_id]);
 $user = $stmt_user->fetch(PDO::FETCH_ASSOC) ?: [];
 ensure_user_data($user);
 
-// Handle profile update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
     $name = trim(filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
     $prenume = trim(filter_input(INPUT_POST, 'prenume', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
@@ -62,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Fetch worked hours per organization
 $sql_hours = "SELECT org_id, o.name AS org_name, SUM(hours) AS total_hours,
                      COUNT(DISTINCT DATE(work_date)) AS days_worked
               FROM worked_hours wh
@@ -75,7 +72,6 @@ while ($row = $stmt_hours->fetch(PDO::FETCH_ASSOC)) {
     $hours_data[$row['org_id']] = $row;
 }
 
-// Fetch organizations and participation
 $sql_organizations = "SELECT o.id, o.name AS org_name, o.description, r.join_date, r.role,
                              (SELECT COUNT(e.id) FROM events e 
                               LEFT JOIN event_roles er ON e.id = er.event_id AND er.user_id = r.user_id

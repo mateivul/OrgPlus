@@ -2,14 +2,12 @@
 
 require_once __DIR__ . '/../src/config.php';
 
-// Inițializăm dependențele
 $authService = getService('AuthService');
 $organizationService = getService('OrganizationService');
 $organizationRepository = getService('OrganizationRepository');
 $roleRepository = getService('RoleRepository');
 $requestService = getService('RequestService');
 
-// --- Protecția paginii: Doar pentru utilizatori autentificați ---
 $currentUser = $authService->getCurrentUser();
 if (!$currentUser) {
     header('Location: login.php');
@@ -18,14 +16,12 @@ if (!$currentUser) {
 
 $user_id = $currentUser->id;
 
-// Verifică dacă org_id este setată în sesiune
 if (!isset($_SESSION['org_id'])) {
     header('Location: my_organizations.php?error=no_org_selected');
     exit();
 }
 $org_id = $_SESSION['org_id'];
 
-// Preluăm organizația
 $organization = $organizationRepository->findById($org_id);
 if (!$organization) {
     header('Location: my_organizations.php?error=org_not_found');
@@ -33,19 +29,15 @@ if (!$organization) {
 }
 $org_name = $organization->name;
 
-// Verifică rolul utilizatorului curent în organizație
 $user_role_in_org = $roleRepository->getUserRoleInOrganization($user_id, $org_id);
 $is_org_member = $roleRepository->isUserMemberOfOrganization($user_id, $org_id);
 $is_admin = $roleRepository->isUserAdminOrOwner($user_id, $org_id); // Acum include "owner" și "admin"
 
-// !!! CRUCIAL: Redirecționează dacă utilizatorul curent NU este membru al organizației !!!
 if (!$is_org_member) {
-    // Redirecționează către dashboard sau o pagină de eroare/acces interzis
     header('Location: dashboard.php?error=access_denied_members');
     exit();
 }
 
-// --- GESTIONARE CERERI POST (AJAX) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $response = ['error' => false, 'success' => false, 'warning' => false, 'message' => ''];
     header('Content-Type: application/json');
@@ -77,14 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode($response);
             exit();
         } else {
-            // Nu se potrivește nicio acțiune POST validă
             $response['error'] = true;
             $response['message'] = 'Acțiune POST invalidă sau permisiuni insuficiente.';
         }
     } catch (Exception $e) {
         $response['error'] = true;
         $response['message'] = $e->getMessage();
-        // Poți adăuga și un log al erorilor aici
         error_log('Eroare în members_org.php (POST): ' . $e->getMessage());
     }
 
@@ -92,11 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
-// --- Preluare membri pentru afișare ---
-// Vom folosi o metodă din RoleRepository care returnează o listă de membri cu detalii
 $members_data = $roleRepository->getMembersWithDetailsByOrganization($org_id);
-
-// NOUĂ METODĂ ÎN RoleRepository!
 ?>
 <!DOCTYPE html>
 <html lang="ro">
@@ -108,9 +94,7 @@ $members_data = $roleRepository->getMembersWithDetailsByOrganization($org_id);
 </head>
 <body>
 <div class="d-flex">
-    <?php // Variabilele pentru sidebar sunt deja definite în acest script
-
-include '../includes/sidebar.php'; ?>
+    <?php include '../includes/sidebar.php'; ?>
 
     <div class="my-content p-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -120,8 +104,7 @@ include '../includes/sidebar.php'; ?>
             <?php endif; ?>
         </div>
 
-        <?php if (!empty($members_data)):// Folosim direct $members_data
-             ?>
+        <?php if (!empty($members_data)): ?>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -138,7 +121,6 @@ include '../includes/sidebar.php'; ?>
                 <tbody>
                     <?php foreach ($members_data as $member): ?>
                     <?php
-                    // Calculul "De Când Este Membru"
                     $join_date = new DateTime($member['join_date']);
                     $now = new DateTime();
                     $interval = $join_date->diff($now);
@@ -176,10 +158,8 @@ include '../includes/sidebar.php'; ?>
                         <td><?php echo $member['events_participated']; ?></td>
                         <?php if ($is_admin): ?>
                         <td>
-                            <?php if ($user_id !== $member['id']):// Nu te poți șterge sau edita singur
-                                 ?>
-                                <?php if ($member['role'] !== 'owner'):// Nu poți șterge sau edita owner-ul
-                                     ?>
+                            <?php if ($user_id !== $member['id']): ?>
+                                <?php if ($member['role'] !== 'owner'): ?>
                                     <form method="POST" class="d-inline remove-member-form">
                                         <input type="hidden" name="remove_user_id" value="<?php echo $member['id']; ?>">
                                         <button type="submit" class="btn btn-danger btn-sm">Șterge</button>
@@ -257,7 +237,7 @@ include '../includes/sidebar.php'; ?>
 
         const formData = new FormData(addMemberForm);
 
-        fetch('', { // Trimite la aceeași pagină (members_org.php)
+        fetch('', { 
             method: 'POST',
             body: formData
         })
@@ -322,8 +302,6 @@ include '../includes/sidebar.php'; ?>
         form.addEventListener('submit', function(event) {
             event.preventDefault();
             const userIdToRemove = this.querySelector('input[name="remove_user_id"]').value;
-            // orgId nu mai e necesar în formData pentru că e deja în sesiune pe server
-            // const orgId = this.querySelector('input[name="org_id"]').value;
 
             Swal.fire({
                 title: 'Sigur dorești să ștergi acest membru?',
@@ -337,7 +315,7 @@ include '../includes/sidebar.php'; ?>
             }).then((result) => {
                 if (result.isConfirmed) {
                     const formData = new FormData(form);
-                    fetch('', { // Trimite la aceeași pagină (members_org.php)
+                    fetch('', { 
                         method: 'POST',
                         body: formData
                     })
@@ -381,7 +359,7 @@ include '../includes/sidebar.php'; ?>
 
             const formData = new FormData(this);
 
-            fetch('', { // Trimite la aceeași pagină (members_org.php)
+            fetch('', { 
                 method: 'POST',
                 body: formData
             })

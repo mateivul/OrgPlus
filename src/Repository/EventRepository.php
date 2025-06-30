@@ -1,12 +1,4 @@
-<?php // No namespace or use statements
-// No namespace or use statements
-// No namespace or use statements
-// No namespace or use statements
-// No namespace or use statements
-// No namespace or use statements
-// No namespace or use statements
-// No namespace or use statements
-// No namespace or use statements
+<?php
 class EventRepository
 {
     private PDO $pdo;
@@ -16,12 +8,6 @@ class EventRepository
         $this->pdo = $pdo;
     }
 
-    /**
-     * Numără evenimentele pentru o anumită organizație.
-     *
-     * @param int $orgId ID-ul organizației.
-     * @return int Numărul total de evenimente.
-     */
     public function countEventsByOrganization(int $orgId): int
     {
         $sql = 'SELECT COUNT(*) as total FROM events WHERE org_id = :orgId';
@@ -31,12 +17,6 @@ class EventRepository
         return (int) $stmt->fetchColumn();
     }
 
-    /**
-     * Obține cel mai recent eveniment pentru o anumită organizație.
-     *
-     * @param int $orgId ID-ul organizației.
-     * @return array|null Un array asociativ cu detaliile evenimentului (name, date) sau null dacă nu există.
-     */
     public function findLastEventByOrganization(int $orgId): ?array
     {
         $sql = 'SELECT name, date FROM events WHERE org_id = :orgId ORDER BY date DESC LIMIT 1';
@@ -48,13 +28,6 @@ class EventRepository
         return $eventData ?: null;
     }
 
-    /**
-     * Salvează un obiect Event nou în baza de date.
-     * Returnează ID-ul evenimentului creat sau false la eșec.
-     *
-     * @param Event $event
-     * @return int|false
-     */
     public function save(Event $event)
     {
         $sql = "INSERT INTO events (name, description, date, org_id, created_by, available_roles)
@@ -69,23 +42,16 @@ class EventRepository
             $stmt->bindValue(':available_roles', $event->availableRoles);
 
             if ($stmt->execute()) {
-                // Setează ID-ul pentru obiectul Event după inserare
                 $event->id = (int) $this->pdo->lastInsertId();
                 return (int) $this->pdo->lastInsertId();
             }
             return false;
         } catch (PDOException $e) {
-            error_log('Eroare la salvarea evenimentului: ' . $e->getMessage());
+            error_log('Error saving event: ' . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Găsește un eveniment după ID.
-     *
-     * @param int $id
-     * @return Event|null
-     */
     public function find(int $id): ?Event
     {
         $sql = 'SELECT * FROM events WHERE id = :id';
@@ -98,59 +64,45 @@ class EventRepository
             return null;
         }
 
-        // CORECTARE AICI: Ordinea și tipurile argumentelor pentru constructorul Event
         return new Event(
             $data['name'],
             $data['description'],
             $data['date'],
             (int) $data['org_id'],
-            (int) $data['created_by'], // <-- AICI E CORECTAREA (converte la int)
-            $data['available_roles'], // <-- Mutat aici
-            (int) $data['id'], // <-- ID-ul este acum al 7-lea argument
-            $data['created_at'] ?? null // <-- created_at este al 8-lea argument opțional
+            (int) $data['created_by'],
+            $data['available_roles'],
+            (int) $data['id'],
+            $data['created_at'] ?? null
         );
     }
 
-    /**
-     * Găsește toate evenimentele pentru o anumită organizație.
-     *
-     * @param int $orgId
-     * @return Event[]
-     */
     public function findByOrgId(int $orgId): array
     {
         $sql = 'SELECT * FROM events WHERE org_id = :org_id ORDER BY date ASC';
         try {
-            // Am adăugat try-catch pentru o gestionare mai robustă a erorilor
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':org_id', $orgId, PDO::PARAM_INT);
             $stmt->execute();
             $events = [];
             while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                // CORECTARE AICI: Ordinea și tipurile argumentelor pentru constructorul Event
                 $events[] = new Event(
                     $data['name'],
                     $data['description'],
                     $data['date'],
                     (int) $data['org_id'],
-                    (int) $data['created_by'], // <-- AICI E CORECTAREA (converte la int)
-                    $data['available_roles'], // <-- Mutat aici
-                    (int) $data['id'], // <-- ID-ul este acum al 7-lea argument
-                    $data['created_at'] ?? null // <-- created_at este al 8-lea argument opțional
+                    (int) $data['created_by'],
+                    $data['available_roles'],
+                    (int) $data['id'],
+                    $data['created_at'] ?? null
                 );
             }
             return $events;
         } catch (PDOException $e) {
-            error_log('Eroare la obținerea evenimentelor pentru organizația ' . $orgId . ': ' . $e->getMessage());
-            return []; // Returnează un array gol în caz de eroare
+            error_log('Error getting events for organization ' . $orgId . ': ' . $e->getMessage());
+            return [];
         }
     }
-    /**
-     * Actualizează un eveniment existent.
-     *
-     * @param Event $event
-     * @return bool
-     */
+
     public function update(Event $event): bool
     {
         $sql = "UPDATE events SET name = :name, description = :description, date = :date, available_roles = :available_roles
@@ -165,18 +117,11 @@ class EventRepository
             $stmt->bindValue(':org_id', $event->orgId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
-            error_log('Eroare la actualizarea evenimentului: ' . $e->getMessage());
+            error_log('Error updating event: ' . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Șterge un eveniment după ID.
-     *
-     * @param int $id
-     * @param int $orgId
-     * @return bool
-     */
     public function delete(int $id, int $orgId): bool
     {
         $sql = 'DELETE FROM events WHERE id = :id AND org_id = :org_id';
@@ -186,15 +131,13 @@ class EventRepository
             $stmt->bindParam(':org_id', $orgId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
-            error_log('Eroare la ștergerea evenimentului: ' . $e->getMessage());
+            error_log('Error deleting event: ' . $e->getMessage());
             return false;
         }
     }
 
     public function getTasksForEvent(int $eventId): array
     {
-        // SELECTăm coloanele necesare, inclusiv numele utilizatorilor
-        // Folosim alias-uri pentru a evita conflictele de nume de coloane (ex: 'name' din users)
         $sql = "
             SELECT
                 et.task_id,
@@ -234,9 +177,6 @@ class EventRepository
                     (int) $data['task_id'],
                     $data['created_at'] ?? null
                 );
-                // Poți adăuga și numele utilizatorilor în obiectul task sau un array separat
-                // De exemplu, poți adăuga proprietăți temporare sau o altă structură de date
-                // sau le poți lăsa pentru un Service să le adauge
                 $task->userAssignedName = $data['user_assigned_name'] . ' ' . $data['user_assigned_prenume'];
                 $task->assignerName = $data['assigner_name'] . ' ' . $data['assigner_prenume'];
 
@@ -244,7 +184,7 @@ class EventRepository
             }
             return $tasks;
         } catch (PDOException $e) {
-            error_log('Eroare la obținerea task-urilor pentru evenimentul ' . $eventId . ': ' . $e->getMessage());
+            error_log('Error getting tasks for event ' . $eventId . ': ' . $e->getMessage());
             return [];
         }
     }
@@ -308,7 +248,6 @@ class EventRepository
         }
     }
 
-    // pt assign roles:
     public function updateAvailableRoles(int $eventId, string $availableRolesString): bool
     {
         $sql = 'UPDATE events SET available_roles = :available_roles WHERE id = :id';

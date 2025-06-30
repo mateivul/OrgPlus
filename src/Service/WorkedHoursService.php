@@ -35,7 +35,6 @@ class WorkedHoursService
         $pdo->beginTransaction();
 
         try {
-            // Check if the roles row exists for this user/org
             $roleExists = $this->roleRepository->isUserMemberOfOrganization($memberId, $orgId);
             if (!$roleExists) {
                 $pdo->rollBack();
@@ -51,7 +50,6 @@ class WorkedHoursService
             $result = $this->workedHoursRepository->save($workedHour);
 
             if ($result === true) {
-                // Update total_contribution_hours using a direct SUM from worked_hours
                 $updateSql = "UPDATE roles SET total_contribution_hours = (
                                 SELECT IFNULL(SUM(hours), 0)
                                 FROM worked_hours
@@ -88,16 +86,13 @@ class WorkedHoursService
     {
         $membersData = $this->roleRepository->getOrganizationMembersWithRolesAndContribution($orgId);
 
-        // Get the events array and count them
         $totalEvents = getService('EventService')->getEventsForOrganization($orgId);
         $totalEventsCount = is_array($totalEvents) ? count($totalEvents) : (int) $totalEvents;
 
         foreach ($membersData as &$member) {
-            // Placeholder for events_participated - you'd need actual logic here
-            $member['events_participated'] = 0; // REPLACE WITH ACTUAL LOGIC
+            $member['events_participated'] = 0;
             $member['total_events'] = $totalEventsCount;
 
-            // Calculate is_active based on your criteria
             $member['is_active'] =
                 ($member['is_active'] && $member['events_participated'] >= $member['total_events'] * 0.5) ||
                 $member['total_contribution_hours'] >= 20;

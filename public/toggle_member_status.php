@@ -39,4 +39,3 @@ if ($updated) {
 } else {
     echo json_encode(['error' => true, 'message' => 'Eroare la actualizarea statusului.']);
 }
-?>

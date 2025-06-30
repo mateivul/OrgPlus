@@ -4,29 +4,22 @@ require_once __DIR__ . '/../src/config.php';
 
 $error = '';
 
-// Inițializăm dependențele
 $authService = getService('AuthService');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validare CSRF
     if (!isset($_POST['csrf_token']) || !CsrfToken::validateToken($_POST['csrf_token'])) {
-        // În loc de die(), este mai bine să arunci o excepție sau să setezi un mesaj de eroare
-        // și să redirecționezi sau să afișezi o eroare elegantă.
         $error = 'Eroare CSRF: Cerere invalidă!';
     } else {
         $input_email = trim($_POST['email']);
         $input_password = trim($_POST['password']);
 
-        // Aici apelăm logica de autentificare din AuthService
         $user = $authService->login($input_email, $input_password);
 
         if ($user) {
-            // Autentificare reușită
-            $_SESSION['user_id'] = $user->id; // <-- Asigură-te că această linie există
-            header('Location: index.php'); // Redirecționare
+            $_SESSION['user_id'] = $user->id;
+            header('Location: index.php');
             exit();
         } else {
-            // Autentificare eșuată
             $error = 'Email sau parolă incorectă.';
         }
     }

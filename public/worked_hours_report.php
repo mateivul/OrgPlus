@@ -16,7 +16,6 @@ $org_name = $organization ? $organization->name : 'Organizație necunoscută';
 
 $workedHoursRepository = getService('WorkedHoursRepository');
 
-// Fetch monthly summary report for the organization
 $sql = "SELECT 
             YEAR(work_date) AS year,
             MONTH(work_date) AS month,

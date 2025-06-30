@@ -1,7 +1,5 @@
 <?php
 
-// namespace App\Security;
-
 class CsrfToken
 {
     public static function generateToken(): string

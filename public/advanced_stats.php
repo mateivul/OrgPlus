@@ -252,7 +252,7 @@ foreach ($stmt_hours_distribution->fetchAll(PDO::FETCH_ASSOC) as $row) {
     ];
 }
 
-// Prepare chart data
+// chart data
 $chart_data = [
     'events_by_month' => [],
     'hours_by_month' => [],
@@ -495,9 +495,7 @@ foreach ($hours_ranges_order as $range) {
                                 <?php endif; ?>
                             </tbody>
                         </table>
-                        <?php
-// Remove $stmt_last_events->close(); for PDO, not needed
-?>
+                        <?php  ?>
                     </div>
                 </div>
             </div>
@@ -506,7 +504,6 @@ foreach ($hours_ranges_order as $range) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Add Chart.js CDN if not already included -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {

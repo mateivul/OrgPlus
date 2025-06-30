@@ -1,8 +1,4 @@
-.my-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
+
 
 .my-card {
     display: flex;

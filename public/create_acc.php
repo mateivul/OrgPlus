@@ -8,7 +8,6 @@ $userService = getService('UserService');
 $userRepository = getService('UserRepository');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validare CSRF
     if (!isset($_POST['csrf_token']) || !CsrfToken::validateToken($_POST['csrf_token'])) {
         $error = 'Eroare CSRF: Cerere invalidă!';
     } else {
@@ -17,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = trim($_POST['email']);
         $password = trim($_POST['password']);
 
-        // Validări de bază (similar cu codul tău vechi)
         if (empty($name) || empty($prenume) || empty($email) || empty($password)) {
             $error = 'Toate câmpurile sunt obligatorii.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -25,14 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (strlen($password) < 6) {
             $error = 'Parola trebuie să aibă cel puțin 6 caractere.';
         } else {
-            // Apelăm metoda registerUser din UserService
             $registeredUser = $userService->registerUser($name, $prenume, $email, $password);
 
             if ($registeredUser) {
-                // Înregistrare reușită
                 $success = 'Contul a fost creat cu succes! Te poți autentifica acum.';
-                // Alternativ, redirecționează direct la pagina de login
-                header('Location: login.php?registered=true'); // Adaugăm un parametru pentru mesaj
+                header('Location: login.php?registered=true');
                 exit();
             } else {
                 // Verificăm dacă eroarea a fost cauzată de un email duplicat
@@ -63,9 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card-body">
                 <h3 class="card-title text-center">Creare cont</h3>
                 <?php if (!empty($error)) {
-                    echo "<p class='text-danger'>$error</p>"; // Folosim text-danger pentru Bootstrap
+                    echo "<p class='text-danger'>$error</p>";
                 } elseif (!empty($success)) {
-                    echo "<p class='text-success'>$success</p>"; // Folosim text-success pentru Bootstrap
+                    echo "<p class='text-success'>$success</p>";
                 } ?>
                 <form method="POST" action="">
                     <?= CsrfToken::csrfField() ?>

@@ -3,15 +3,11 @@ require_once __DIR__ . '/../src/config.php';
 
 $user_id = ensure_logged_in();
 
-// Use PDO from a repository (e.g. WorkedHoursRepository)
 $workedHoursRepository = getService('WorkedHoursRepository');
-$pdo = $workedHoursRepository->getPdo();
 
-// Filtering logic
 $allowed_filters = ['all', 'pending', 'accepted', 'rejected'];
 $filter = isset($_GET['filter']) && in_array($_GET['filter'], $allowed_filters) ? $_GET['filter'] : 'all';
 
-// Only show the request types you want, and map them to your new logic
 $allowed_types = ['event_invitation', 'organization_invite_manual', 'organization_join_request_response'];
 
 $placeholders = implode(',', array_fill(0, count($allowed_types), '?'));
@@ -49,7 +45,6 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $personal_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Handle POST actions for accept/reject
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['request_id'])) {
     $response = ['success' => false, 'error' => false, 'warning' => false, 'message' => ''];
     header('Content-Type: application/json');
@@ -57,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
     $action = $_POST['action'];
 
     try {
-        // Fetch the request and lock it for update
         $stmt = $pdo->prepare('SELECT * FROM requests WHERE request_id = ? FOR UPDATE');
         $stmt->execute([$request_id]);
         $request = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -68,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
         if ($request['status'] !== 'pending') {
             throw new Exception('Solicitarea a fost deja procesată.');
         }
-        // Only the receiver can accept/reject
         if ($request['receiver_user_id'] != $user_id) {
             throw new Exception('Nu ai permisiunea să procesezi această solicitare.');
         }
@@ -77,10 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
         $stmt = $pdo->prepare('UPDATE requests SET status = ? WHERE request_id = ?');
         $stmt->execute([$new_status, $request_id]);
 
-        // If accepted, add user to event/org if needed
         if ($action === 'accept') {
             if ($request['request_type'] === 'event_invitation' && $request['event_id']) {
-                // Add user as participant to event_roles if not already
                 $stmt = $pdo->prepare('SELECT 1 FROM event_roles WHERE event_id = ? AND user_id = ?');
                 $stmt->execute([$request['event_id'], $user_id]);
                 if (!$stmt->fetchColumn()) {
@@ -90,7 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['req
                     $stmt->execute([$request['event_id'], $user_id]);
                 }
             } elseif ($request['request_type'] === 'organization_invite_manual' && $request['organization_id']) {
-                // Add user as member to roles if not already
                 $stmt = $pdo->prepare('SELECT 1 FROM roles WHERE org_id = ? AND user_id = ?');
                 $stmt->execute([$request['organization_id'], $user_id]);
                 if (!$stmt->fetchColumn()) {

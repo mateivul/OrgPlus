@@ -13,7 +13,6 @@ if (!in_array($user_role, ['admin', 'owner'])) {
     die('Permisiuni insuficiente');
 }
 
-// Get member info (fetch only the requested member for this org)
 $member = null;
 $members = $roleRepository->getOrganizationMembersWithRolesAndContribution($org_id);
 foreach ($members as $m) {
@@ -26,7 +25,6 @@ if (!$member) {
     die('Membru negăsit');
 }
 
-// Get worked hours for this member (returns array of associative arrays or WorkedHour objects)
 $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $org_id);
 ?>
 
@@ -41,7 +39,6 @@ $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $o
 <body>
 <div class="d-flex">
     <?php
-    // Initialize $authService before including the sidebar
     $authService = getService('AuthService');
     include_once __DIR__ . '/../includes/sidebar.php';
     ?>
@@ -79,10 +76,8 @@ $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $o
         <tr>
             <td>
                 <?php
-                // Safely get work_date
                 $work_date = null;
                 if (is_object($row)) {
-                    // Use getter if available, else public property, else '-'
                     if (property_exists($row, 'work_date')) {
                         $work_date = $row->work_date;
                     }
@@ -94,7 +89,6 @@ $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $o
             </td>
             <td>
                 <?php
-                // Safely get hours
                 $hours_val = null;
                 if (is_object($row)) {
                     if (property_exists($row, 'hours')) {
@@ -108,7 +102,6 @@ $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $o
             </td>
             <td>
                 <?php
-                // Safely get description
                 $desc = null;
                 if (is_object($row)) {
                     if (property_exists($row, 'description')) {
@@ -122,7 +115,6 @@ $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $o
             </td>
             <td>
                 <?php
-                // Show the date the hour entry was added (recorded_at)
                 $recorded = null;
                 if (is_object($row)) {
                     if (property_exists($row, 'recorded_at')) {

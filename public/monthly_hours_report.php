@@ -18,7 +18,6 @@ $org_name = $organization ? $organization->name : 'Organizație necunoscută';
 
 $workedHoursRepository = getService('WorkedHoursRepository');
 
-// Fetch worked hours for the given month and organization
 $sql = "SELECT 
             u.id AS user_id,
             u.name,

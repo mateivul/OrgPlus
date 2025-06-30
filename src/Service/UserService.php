@@ -1,10 +1,5 @@
 <?php
 
-// namespace App\Service;
-
-// use App\Model\User;
-// use App\Repository\UserRepository;
-
 class UserService
 {
     private UserRepository $userRepository;
@@ -14,19 +9,10 @@ class UserService
         $this->userRepository = $userRepository;
     }
 
-    /**
-     * Înregistrează un utilizator nou.
-     *
-     * @param string $firstName Numele utilizatorului.
-     * @param string $lastName Prenumele utilizatorului.
-     * @param string $email Email-ul utilizatorului.
-     * @param string $password Parola în clar a utilizatorului.
-     * @return User|null Obiectul User înregistrat cu succes sau null în caz de eșec.
-     */
     public function registerUser(string $firstName, string $lastName, string $email, string $password): ?User
     {
         if ($this->userRepository->findByEmail($email)) {
-            return null; // Email-ul este deja înregistrat
+            return null;
         }
 
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);

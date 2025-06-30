@@ -11,24 +11,15 @@
     font-size: 14px;
     letter-spacing: 1px;
 }
-.card-title {
-    margin-bottom: 16px;
-}
-.form-label {
-    margin-bottom: 0.2rem;
-}
-.link-underline {
-    color: #2962b5;
-}
+
+
 .card-body {
     display: flex;
     flex-direction: column;
     justify-content: start;
     padding: 24px;
 }
-.mb-3 {
-    margin-bottom: 16px;
-}
+
 .card {
     border-radius: 15px;
 }

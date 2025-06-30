@@ -6,7 +6,7 @@ class WorkedHour
     public int $userId;
     public int $orgId;
     public float $hours;
-    public string $workDate; // Stored as 'YYYY-MM-DD'
+    public string $workDate;
     public ?string $description;
     public int $recordedBy;
     public ?string $createdAt;

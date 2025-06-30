@@ -28,7 +28,6 @@ class WorkedHoursRepository
             if (!$success) {
                 $errorInfo = $stmt->errorInfo();
                 error_log('Error saving worked hour: ' . print_r($errorInfo, true));
-                // Return error message for debugging
                 return 'SQLSTATE: ' . $errorInfo[0] . ' - ' . $errorInfo[2];
             }
 
@@ -66,12 +65,11 @@ class WorkedHoursRepository
                 $data['work_date'],
                 $data['recorded_by'],
                 $data['description'],
-                array_key_exists('status', $data) && $data['status'] !== null ? (string) $data['status'] : '', // always string, never null
+                array_key_exists('status', $data) && $data['status'] !== null ? (string) $data['status'] : '',
                 $data['id'],
                 array_key_exists('created_at', $data) && $data['created_at'] !== null ? $data['created_at'] : '',
                 array_key_exists('updated_at', $data) && $data['updated_at'] !== null ? $data['updated_at'] : ''
             );
-            // Set properties directly instead of using setters
             $workedHour->user_name = isset($data['user_name']) ? $data['user_name'] : '';
             $workedHour->user_prenume = isset($data['user_prenume']) ? $data['user_prenume'] : '';
             $workedHour->recorded_by_name = isset($data['recorded_by_name']) ? $data['recorded_by_name'] : '';
@@ -106,13 +104,12 @@ class WorkedHoursRepository
                 $data['work_date'],
                 $data['recorded_by'],
                 $data['description'],
-                array_key_exists('status', $data) && $data['status'] !== null ? (string) $data['status'] : '', // always string, never null
+                array_key_exists('status', $data) && $data['status'] !== null ? (string) $data['status'] : '',
                 $data['id'],
                 array_key_exists('created_at', $data) && $data['created_at'] !== null ? $data['created_at'] : '',
                 array_key_exists('updated_at', $data) && $data['updated_at'] !== null ? $data['updated_at'] : '',
-                array_key_exists('recorded_at', $data) && $data['recorded_at'] !== null ? $data['recorded_at'] : '' // add this line
+                array_key_exists('recorded_at', $data) && $data['recorded_at'] !== null ? $data['recorded_at'] : ''
             );
-            // Set properties directly instead of using setters
             $workedHour->user_name = isset($data['user_name']) ? $data['user_name'] : '';
             $workedHour->user_prenume = isset($data['user_prenume']) ? $data['user_prenume'] : '';
             $workedHour->recorded_by_name = isset($data['recorded_by_name']) ? $data['recorded_by_name'] : '';
@@ -122,9 +119,6 @@ class WorkedHoursRepository
         return $workedHours;
     }
 
-    /**
-     * Recalculates and updates total_contribution_hours in roles for a user/org.
-     */
     public function recalculateTotalContributionHours(int $userId, int $orgId): bool
     {
         $sql = 'UPDATE roles SET total_contribution_hours = (
@@ -144,10 +138,5 @@ class WorkedHoursRepository
             error_log('Error recalculating total contribution hours: ' . $e->getMessage());
             return false;
         }
-    }
-
-    public function getPdo(): PDO
-    {
-        return $this->pdo;
     }
 }

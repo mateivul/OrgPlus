@@ -15,7 +15,6 @@ if ($profile_user_id === $logged_in_user_id) {
     exit();
 }
 
-// Fetch public user
 $sql_public_user = 'SELECT id, name, prenume, email, created_at FROM users WHERE id = ?';
 $stmt_public_user = $pdo->prepare($sql_public_user);
 $stmt_public_user->execute([$profile_user_id]);
@@ -27,7 +26,6 @@ if (!$public_user) {
     exit();
 }
 
-// Fetch common organizations
 $sql_common_orgs = "SELECT o.id AS org_id, o.name AS org_name, o.description AS org_description
                     FROM roles r1
                     JOIN roles r2 ON r1.org_id = r2.org_id

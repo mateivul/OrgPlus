@@ -2,7 +2,6 @@
 
 require_once __DIR__ . '/../src/config.php';
 
-// Inițializăm dependențele
 $authService = getService(AuthService::class);
 $organizationRepository = getService(OrganizationRepository::class);
 $requestRepository = getService(RequestRepository::class);
@@ -13,9 +12,7 @@ $user_id = $currentUser ? $currentUser->id : null;
 $response_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enroll_org_id'])) {
-    // Asigură-te că utilizatorul este autentificat pentru a efectua această acțiune
     if (!$currentUser) {
-        // <-- Verificarea adăugată aici
         header('Content-Type: application/json');
         echo json_encode([
             'error' => true,
@@ -24,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enroll_org_id'])) {
         exit();
     }
 
-    // Validare CSRF pentru cererile AJAX
     if (!isset($_POST['csrf_token']) || !CsrfToken::validateToken($_POST['csrf_token'])) {
         header('Content-Type: application/json');
         echo json_encode(['error' => true, 'message' => 'Eroare CSRF: Cerere invalidă!']);
@@ -34,12 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enroll_org_id'])) {
     $org_id = intval($_POST['enroll_org_id']);
     $response = ['error' => false, 'success' => false, 'warning' => false, 'message' => ''];
 
-    // Folosim RequestRepository pentru a verifica cererea
     if ($requestRepository->hasPendingOrAcceptedJoinRequest($user_id, $org_id)) {
         $response['warning'] = true;
         $response['message'] = 'Ai deja o cerere în așteptare pentru această organizație sau ești deja membru.';
     } else {
-        // Folosim RequestRepository pentru a crea cererea
         if ($requestRepository->createJoinRequest($user_id, $org_id)) {
             $response['success'] = true;
             $response['message'] = 'Cererea de aderare a fost trimisă cu succes!';
@@ -54,15 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enroll_org_id'])) {
     exit();
 }
 
-// --- NOUA LOGICĂ pentru preluarea organizațiilor ---
-$organizations = []; // Inițializăm un array gol
+$organizations = [];
 
 if ($currentUser) {
-    // Utilizatorul este logat, preluăm organizațiile cu statusul său
     $organizations = $organizationRepository->findAllOrganizationsWithUserStatus($user_id);
 } else {
-    // Utilizatorul NU este logat, preluăm doar organizațiile publice (fără status specific utilizatorului)
-    $organizations = $organizationRepository->findAll(); // <-- Folosim noua metodă
+    $organizations = $organizationRepository->findAll();
 }
 ?>
 
@@ -108,10 +99,7 @@ if ($currentUser) {
                                     data-bs-target="#orgModal<?php echo $org->id; ?>">
                                     Detalii
                                 </button>
-                                <?php if (
-                                    $org->isEnrolled
-                                ):// Aceasta va fi true doar dacă $currentUser există și are rol
-                                     ?>
+                                <?php if ($org->isEnrolled): ?>
                                     <span class="role">
                                         Rol:
                                         <b>

@@ -19,13 +19,6 @@ class RequestService
         $this->roleRepository = $roleRepository;
     }
 
-    // --- Adaugă aici metodele specifice serviciului de cereri (requests) ---
-    // Exemple:
-    // public function createJoinRequest(int $userId, int $organizationId): bool { ... }
-    // public function approveJoinRequest(int $requestId, int $approverId): bool { ... }
-    // public function denyJoinRequest(int $requestId, int $denyerId): bool { ... }
-    // public function getPendingRequestsForOrganization(int $organizationId): array { ... }
-
     public function inviteUserToOrganization(string $inviteeEmail, int $organizationId, int $inviterUserId): array
     {
         $response = ['error' => false, 'success' => false, 'warning' => false, 'message' => ''];

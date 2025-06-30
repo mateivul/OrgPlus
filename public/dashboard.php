@@ -2,13 +2,11 @@
 
 require_once __DIR__ . '/../src/config.php';
 
-// Inițializăm dependențele
 $authService = getService('AuthService');
 $organizationRepository = getService('OrganizationRepository');
 $roleRepository = getService('RoleRepository');
 $eventRepository = getService('EventRepository');
 
-// --- Protecția paginii: Doar pentru utilizatori autentificați ---
 $currentUser = $authService->getCurrentUser();
 if (!$currentUser) {
     header('Location: login.php');
@@ -17,16 +15,12 @@ if (!$currentUser) {
 
 $user_id = $currentUser->id;
 
-// Verifică dacă org_id este setată în sesiune
 if (!isset($_SESSION['org_id'])) {
     header('Location: my_organizations.php?error=no_org_selected');
     exit();
 }
 $org_id = $_SESSION['org_id'];
 
-// --- Preluarea datelor pentru Dashboard ---
-
-// Detalii organizație (mereu necesare)
 $organization = $organizationRepository->findById($org_id);
 if (!$organization) {
     header('Location: my_organizations.php?error=org_not_found');
@@ -66,32 +60,25 @@ if ($created_at_str) {
     }
 }
 
-// Numele utilizatorului curent
 $name = $currentUser->firstName . ' ' . $currentUser->lastName;
 
-// --- Logica pentru conținut condițional bazat pe rol ---
 $user_role = $roleRepository->getUserRoleInOrganization($user_id, $org_id);
 $is_org_member = $roleRepository->isUserMemberOfOrganization($user_id, $org_id);
 $is_org_admin_or_owner = $roleRepository->isUserAdminOrOwner($user_id, $org_id);
 
-// Variabile de date inițializate (vor fi populate cu date reale dacă utilizatorul este membru)
 $members_count = 0;
 $events_count = 0;
 $last_event_name = 'Niciun eveniment recent';
 $last_event_date = 'N/A';
 
-// Preluăm datele doar dacă e membru
 $members_count = $roleRepository->countMembersInOrganization($org_id);
 $events_count = $eventRepository->countEventsByOrganization($org_id);
 $last_event = $eventRepository->findLastEventByOrganization($org_id);
 $last_event_name = $last_event['name'] ?? 'Niciun eveniment recent';
 $last_event_date = $last_event['date'] ?? 'N/A';
 
-// Permisiuni pentru accesul la link-uri din carduri (nu la vizibilitatea cardurilor)
-$can_access_members_page = $is_org_member; // Sau ajustează conform rolurilor specifice dacă e nevoie
+$can_access_members_page = $is_org_member;
 $can_access_events_page = $is_org_member;
-
-// Sau ajustează conform rolurilor specifice dacă e nevoie
 ?>
 
 <!DOCTYPE html>

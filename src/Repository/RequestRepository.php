@@ -88,11 +88,10 @@ class RequestRepository
             ]);
         } catch (PDOException $e) {
             if ($e->getCode() === '23000') {
-                // SQLSTATE for Integrity Constraint Violation
-                error_log('Tentativă de a insera cerere duplicat (ignorat): ' . $e->getMessage());
-                return true; // Considerăm succes chiar dacă a fost duplicat
+                error_log('Attempt to insert duplicate request (ignored): ' . $e->getMessage());
+                return true;
             }
-            error_log('Eroare la salvarea cererii: ' . $e->getMessage());
+            error_log('Error saving request: ' . $e->getMessage());
             return false;
         }
     }
@@ -217,7 +216,7 @@ class RequestRepository
             $stmt->bindParam(':id', $requestId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
-            error_log('Eroare la actualizarea stării cererii: ' . $e->getMessage());
+            error_log('Error updating request status: ' . $e->getMessage());
             return false;
         }
     }
@@ -244,7 +243,7 @@ class RequestRepository
                 'user_id_event_receiver' => $userId,
             ]);
         } catch (PDOException $e) {
-            error_log('Eroare la ștergerea cererilor asociate: ' . $e->getMessage());
+            error_log('Error deleting associated requests: ' . $e->getMessage());
             return false;
         }
     }

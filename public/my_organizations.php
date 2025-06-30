@@ -3,7 +3,6 @@ require_once __DIR__ . '/../src/config.php';
 
 $user_id = ensure_logged_in();
 
-// Handle create organization POST (AJAX)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_organization') {
     $name = trim($_POST['name']);
     $description = trim($_POST['description']);
@@ -23,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit();
     }
 
-    // Check for duplicate email
     $stmt_check = $pdo->prepare('SELECT id FROM organizations WHERE email = ?');
     $stmt_check->execute([$email]);
     if ($stmt_check->fetchColumn()) {
@@ -31,12 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit();
     }
 
-    // Insert organization
     $stmt = $pdo->prepare("INSERT INTO organizations (name, description, email, phone, address, website, owner_id, created_at, updated_at, status)
         VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), 'active')");
     if ($stmt->execute([$name, $description, $email, $phone, $address, $website, $owner_id])) {
         $org_id = $pdo->lastInsertId();
-        // Add owner to roles
         $stmt_role = $pdo->prepare(
             "INSERT INTO roles (user_id, org_id, role, join_date) VALUES (?, ?, 'owner', NOW())"
         );
@@ -49,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Fetch organizations for this user (owner or member)
 $sql = "SELECT o.id, o.name, r.role
         FROM roles r
         JOIN organizations o ON r.org_id = o.id

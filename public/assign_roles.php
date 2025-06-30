@@ -16,7 +16,7 @@ $event = $eventDetails['event'] ?? null;
 $event_name = $event ? $event->name : 'Eveniment necunoscut';
 $org_name = $eventDetails['org_name'];
 $org_id = $event ? $event->orgId : 0;
-$event_creator_id = $event ? $event->createdBy : 0; // Renamed from owner_id to event_creator_id for clarity with events
+$event_creator_id = $event ? $event->createdBy : 0;
 $available_roles = $eventDetails['roles'];
 $has_management_permission = $eventDetails['has_management_permission'];
 $permission_error = $eventDetails['permission_error'];
@@ -39,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $has_management_permission) {
             $eventService->updateEventRoles(
                 $event_id,
                 $org_id,
-                $user_id, // actingUserId
-                $event_creator_id, // eventCreatorId
+                $user_id,
+                $event_creator_id,
                 $user_roles_to_assign,
                 $available_roles
             )
@@ -62,10 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $has_management_permission) {
 
         if ($addRoleResult['success']) {
             $response = ['success' => true, 'message' => $addRoleResult['message']];
-            // Reîncarcă rolurile disponibile pentru a reflecta modificarea imediat
             $available_roles = $addRoleResult['newRoles'];
         } else {
-            // Verifică tipurile de mesaje pentru a oferi feedback specific
             if (strpos($addRoleResult['message'], 'exista deja') !== false) {
                 $response = ['info' => true, 'message' => $addRoleResult['message']];
             } elseif (strpos($addRoleResult['message'], 'nume pentru rol') !== false) {
@@ -219,17 +217,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $has_management_permission) {
                                                         </option>
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
-                                                <!-- <?php if (
-                                                    !empty($member['role']) &&
-                                                    !in_array($member['role'], $available_roles) &&
-                                                    !empty($available_roles)
-                                                ): ?>
+                                                 <?php if (
+                                                     !empty($member['role']) &&
+                                                     !in_array($member['role'], $available_roles) &&
+                                                     !empty($available_roles)
+                                                 ): ?>
                                                      <option value="<?= htmlspecialchars(
                                                          $member['role']
                                                      ) ?>" selected class="text-warning fst-italic">
                                                         <?= htmlspecialchars($member['role']) ?> (vechi/indisponibil)
                                                     </option>
-                                                <?php endif; ?> -->
+                                                <?php endif; ?> 
                                                  <?php if (empty($available_roles) && empty($member['role'])): ?>
                                                     <option value="" disabled class="fst-italic">Nu sunt roluri definite</option>
                                                 <?php endif; ?>
@@ -327,13 +325,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         updateSelectAllHeaderCheckboxState();
         updateBulkAssignVisibility();
-        // if (selectedCount > 0) {
-        //      Swal.fire({ icon: 'success', title: 'Selectați!', text: `${selectedCount} membri fără rol (vizibili) au fost selectați.`, timer: 2000, showConfirmButton: false });
-        // } else if (visibleWithNoRole === 0 && memberTableBody.querySelector('tr:not([style*="display: none"])')) {
-        //     Swal.fire({ icon: 'info', title: 'Info', text: 'Toți membrii vizibili au deja un rol atribuit.' });
-        // } else if (!memberTableBody.querySelector('tr:not([style*="display: none"])')) {
-        //      Swal.fire({ icon: 'info', title: 'Info', text: 'Niciun membru vizibil pentru a selecta (verificați filtrul de căutare).' });
-        // }
+        if (selectedCount > 0) {
+             Swal.fire({ icon: 'success', title: 'Selectați!', text: `${selectedCount} membri fără rol (vizibili) au fost selectați.`, timer: 2000, showConfirmButton: false });
+        } else if (visibleWithNoRole === 0 && memberTableBody.querySelector('tr:not([style*="display: none"])')) {
+            Swal.fire({ icon: 'info', title: 'Info', text: 'Toți membrii vizibili au deja un rol atribuit.' });
+        } else if (!memberTableBody.querySelector('tr:not([style*="display: none"])')) {
+             Swal.fire({ icon: 'info', title: 'Info', text: 'Niciun membru vizibil pentru a selecta (verificați filtrul de căutare).' });
+        }
     }
 
     if (selectAllHeaderCheckbox && memberTableBody) {
@@ -392,13 +390,13 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSelectAllHeaderCheckboxState();
         updateBulkAssignVisibility();
 
-        // Swal.fire({
-        //     icon: 'success',
-        //     title: 'Roluri actualizate local!',
-        //     html: `Rolul "<strong>${selectedRoleText}</strong>" a fost setat pentru <strong>${usersAssignedCount}</strong> utilizatori selectați.<br>Apasă "<strong>Salvează Toate Atribuirile</strong>" pentru a confirma.`,
-        //     timer: 4000,
-        //     showConfirmButton: true
-        // });
+        Swal.fire({
+            icon: 'success',
+            title: 'Roluri actualizate local!',
+            html: `Rolul "<strong>${selectedRoleText}</strong>" a fost setat pentru <strong>${usersAssignedCount}</strong> utilizatori selectați.<br>Apasă "<strong>Salvează Toate Atribuirile</strong>" pentru a confirma.`,
+            timer: 4000,
+            showConfirmButton: true
+        });
     }
 
     function handleSubmit(form, buttonTextDefault) {

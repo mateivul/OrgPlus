@@ -1,5 +1,4 @@
-<?php // No namespace or use statements
-// No namespace or use statements
+<?php
 class OrganizationRepository
 {
     private PDO $pdo;
@@ -9,12 +8,6 @@ class OrganizationRepository
         $this->pdo = $pdo;
     }
 
-    /**
-     * Obține toate organizațiile, fără a lua în considerare starea de înscriere a unui utilizator specific.
-     * Utila pentru utilizatorii neautentificați.
-     *
-     * @return array Un array de obiecte Organization.
-     */
     public function findAll(): array
     {
         $sql = "
@@ -28,7 +21,7 @@ class OrganizationRepository
                 organizations o
             ORDER BY
                 member_count DESC, o.name ASC
-        "; // Am ajustat sortarea pentru a fi relevantă fără statusul utilizatorului
+        ";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
@@ -36,10 +29,9 @@ class OrganizationRepository
         $organizations = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $org = new Organization($row['id'], $row['name'], $row['description'], $row['website']);
-            // Setează proprietățile temporare, dar nu cele specifice utilizatorului
-            $org->isEnrolled = false; // Implicit fals pentru neautentificați
-            $org->isRequestPending = false; // Implicit fals pentru neautentificați
-            $org->userRole = null; // Nu există rol pentru neautentificați
+            $org->isEnrolled = false;
+            $org->isRequestPending = false;
+            $org->userRole = null;
             $org->memberCount = (int) $row['member_count'];
 
             $organizations[] = $org;
@@ -48,15 +40,8 @@ class OrganizationRepository
         return $organizations;
     }
 
-    /**
-     * Obține toate organizațiile cu starea de înscriere și cerere pending pentru un utilizator dat.
-     *
-     * @param int $userId ID-ul utilizatorului autentificat.
-     * @return array Un array de obiecte Organization, extinse cu statusuri.
-     */
     public function findAllOrganizationsWithUserStatus(int $userId): array
     {
-        // ... (codul existent al acestei metode, neschimbat)
         $sql = "
             SELECT
                 o.id,
@@ -96,6 +81,7 @@ class OrganizationRepository
 
         return $organizations;
     }
+
     public function findById(int $id): ?Organization
     {
         $sql = 'SELECT id, name, description, owner_id, created_at, website FROM organizations WHERE id = :id';
