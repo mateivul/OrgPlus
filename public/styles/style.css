@@ -49,16 +49,10 @@ body > .d-flex {
 .link-underline {
     color: #2962b5;
 }
-/* .card-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-} */
 .mb-3 {
     margin-bottom: 16px;
 }
 
-/* ------------------- */
 
 h2, h3, h4, h6 {
     color: white;
@@ -74,7 +68,6 @@ h2, h3, h4, h6 {
 }
 
 .sidebar {
-    /* height: 100vh; */
     box-sizing: border-box;
     flex-shrink: 0;
     background-color: #242a30;
@@ -155,19 +148,11 @@ h2, h3, h4, h6 {
 .my-content {
     width: 100%;
     margin: 1.5rem;
-    /* margin-left: 220px; */
-    /* width: calc(100% - 220px); */
-    /* flex-grow: 1; */
     padding: 0 !important;
 }
 /* ---------------------------------------- */
 
-/* modificari facut de matei duap Iulian 
 
------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------
-*/
 
 /* Hover și click pe card */
 .hover-shadow {
@@ -214,30 +199,21 @@ h2, h3, h4, h6 {
     border: 1px solid #ffc10730;
 }
 
-/* Butoane mici */
-/* Corecții pentru link-ul cardului */
 .hover-card {
     position: relative;
-}
-
-.hover-card .stretched-link {
-    opacity: 1 !important;
-    z-index: 1;
-}
-
-.hover-card {
+    cursor: pointer;
     pointer-events: none;
 }
 
 .hover-card * {
     pointer-events: auto;
 }
-
-/* Corecții finale pentru navigare */
-.hover-card {
-    position: relative;
-    cursor: pointer;
+.hover-card .stretched-link {
+    opacity: 1 !important;
+    z-index: 1;
 }
+
+
 
 .stretched-link {
     pointer-events: auto !important;
@@ -368,10 +344,10 @@ h2, h3, h4, h6 {
 
 /* start workin hours */
 
-        .member-status-active { color: #28a745; }
-        .member-status-inactive { color: #dc3545; }
-        .hours-input { max-width: 100px; }
-        .date-input { max-width: 200px; }
+.member-status-active { color: #28a745; }
+.member-status-inactive { color: #dc3545; }
+.hours-input { max-width: 100px; }
+.date-input { max-width: 200px; }
 
 /* end */
 
@@ -451,4 +427,11 @@ textarea.form-control:focus {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+}
+
+.btn-primary,
+.bg-primary {
+    background-color: #2962b5 !important;
+    border-color: #2962b5 !important;
+    padding: 9px;
 }

@@ -40,8 +40,7 @@ class WorkedHoursService
                 $pdo->rollBack();
                 return [
                     'success' => false,
-                    'message' =>
-                        'Nu există rând în tabela roles pentru acest membru și organizație. Adăugați mai întâi membrul în organizație.',
+                    'message' => 'Nu există acest membru și organizație. Adăugați mai întâi membrul în organizație.',
                 ];
             }
 

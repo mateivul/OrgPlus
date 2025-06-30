@@ -65,7 +65,6 @@ if ($currentUser) {
     <title>Organizații</title>
     <?php require '../includes/global.html'; ?>
     <link rel="stylesheet" href="styles/index-style.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="d-flex">
@@ -159,7 +158,6 @@ if ($currentUser) {
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const enrollForms = document.querySelectorAll(".join-form");

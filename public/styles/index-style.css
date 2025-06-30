@@ -7,7 +7,6 @@
     flex: 1;
     min-width: 240px;
     max-width: 300px;
-    /* height: 180px; */
     margin: 0 1rem 1rem 0 !important;
     background-color: var(--surface2);
     border-radius: var(--radius);

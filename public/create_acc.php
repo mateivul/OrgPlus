@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../src/config.php';
 $error = '';
 $success = '';
-// Inițializăm dependențele
+
 $userService = getService('UserService');
 $userRepository = getService('UserRepository');
 
@@ -30,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: login.php?registered=true');
                 exit();
             } else {
-                // Verificăm dacă eroarea a fost cauzată de un email duplicat
                 if ($userRepository->findByEmail($email)) {
                     $error = 'Acest email este deja folosit.';
                 } else {

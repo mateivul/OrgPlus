@@ -361,8 +361,6 @@ $total_days_worked_all_orgs = array_sum(array_column($hours_data, 'days_worked')
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         <?php if ($update_success !== null): ?>

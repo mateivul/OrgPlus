@@ -67,8 +67,6 @@ foreach ($raw_event_tasks as $task) {
     <meta charset="UTF-8">
     <title>Vizualizare Eveniment - <?php echo htmlspecialchars($event->name); ?></title>
     <?php  ?>
-    <link rel="stylesheet" href="styles/event-style.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="d-flex">
@@ -164,7 +162,6 @@ foreach ($raw_event_tasks as $task) {
 
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const manageTasksForm = document.getElementById('manageTasksForm');

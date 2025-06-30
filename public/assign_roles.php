@@ -91,7 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $has_management_permission) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require '../includes/global.html'; ?>
-    <link rel="stylesheet" href="styles/assign-roles-style.css">
     <title>Atribuire Roluri Eveniment - <?php echo htmlspecialchars($event_name); ?></title>
 </head>
 <body>

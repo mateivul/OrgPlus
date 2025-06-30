@@ -139,4 +139,9 @@ class WorkedHoursRepository
             return false;
         }
     }
+
+    public function getPdo(): PDO
+    {
+        return $this->pdo;
+    }
 }
