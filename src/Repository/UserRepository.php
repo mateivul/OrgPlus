@@ -85,7 +85,7 @@ class UserRepository
     public function updateLastLogin(User $user): bool
     {
         $currentTime = date('Y-m-d H:i:s');
-        $stmt = $this->pdo->prepare('UPDATE users SET last_login_date = :lastLogin WHERE id = :id');
+        $stmt = $this->pdo->prepare('UPDATE users SET last_login = :lastLogin WHERE id = :id');
         $stmt->bindValue(':lastLogin', $currentTime);
         $stmt->bindValue(':id', $user->id, PDO::PARAM_INT);
 
@@ -96,13 +96,13 @@ class UserRepository
         return $result;
     }
 
-    public function updatePasswordHash(int $userId, string $newPasswordHash, ?string $oldSalt = null): bool
+    public function updatePasswordHash(int $userId, string $newPasswordHash, ?string $hashSalt = null): bool
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE users SET password_hash = :newPasswordHash, old_salt = :oldSalt WHERE id = :id'
+            'UPDATE users SET password = :newPasswordHash, hash_salt = :hashSalt WHERE id = :id'
         );
         $stmt->bindValue(':newPasswordHash', $newPasswordHash);
-        $stmt->bindValue(':oldSalt', $oldSalt);
+        $stmt->bindValue(':hashSalt', $hashSalt);
         $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
         return $stmt->execute();
     }
@@ -111,16 +111,16 @@ class UserRepository
     {
         try {
             $stmt = $this->pdo->prepare(
-                'INSERT INTO users (first_name, last_name, email, password_hash, old_salt, registration_date)
-                 VALUES (:first_name, :last_name, :email, :password_hash, :old_salt, :registration_date)'
+                'INSERT INTO users (name, prenume, email, password, hash_salt, created_at)
+                 VALUES (:name, :prenume, :email, :password, :hash_salt, :created_at)'
             );
 
-            $stmt->bindValue(':first_name', $user->firstName);
-            $stmt->bindValue(':last_name', $user->lastName);
+            $stmt->bindValue(':name', $user->firstName);
+            $stmt->bindValue(':prenume', $user->lastName);
             $stmt->bindValue(':email', $user->email);
-            $stmt->bindValue(':password_hash', $user->passwordHash);
-            $stmt->bindValue(':old_salt', $user->oldSalt);
-            $stmt->bindValue(':registration_date', $user->registrationDate ?? date('Y-m-d H:i:s'));
+            $stmt->bindValue(':password', $user->passwordHash);
+            $stmt->bindValue(':hash_salt', $user->hashSalt);
+            $stmt->bindValue(':created_at', $user->registrationDate ?? date('Y-m-d H:i:s'));
 
             $result = $stmt->execute();
 

@@ -1,0 +1,17 @@
+{
+  "name": "organizare/ong",
+  "description": "Organizare ONG application",
+  "require": {},
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+  },
+  "autoload": {
+    "classmap": ["src/"]
+  },
+  "autoload-dev": {
+    "classmap": ["tests/"]
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit"
+  }
+}

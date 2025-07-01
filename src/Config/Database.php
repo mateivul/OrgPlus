@@ -22,8 +22,15 @@ class Database
     {
         if (self::$instance === null) {
             $db = new self();
-            try {
+
+            if (!empty($_ENV['TEST_DB'])) {
+                $file = $_ENV['TEST_DB'];
+                $dsn = "sqlite:file:$file";
+            } else {
                 $dsn = "mysql:host={$db->host};dbname={$db->dbName};charset={$db->charset}";
+            }
+
+            try {
                 $options = [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

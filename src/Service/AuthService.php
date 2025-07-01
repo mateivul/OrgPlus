@@ -15,15 +15,7 @@ class AuthService
 
         if ($user) {
             if ($user->verifyPassword($password)) {
-                $info = password_get_info($user->passwordHash);
-
-                if ($info['algo'] === 0 && $user->oldSalt !== null) {
-                    $newPasswordHash = password_hash($password, PASSWORD_DEFAULT);
-                    if ($this->userRepository->updatePasswordHash($user->id, $newPasswordHash)) {
-                        $user->passwordHash = $newPasswordHash;
-                        $user->oldSalt = null;
-                    }
-                }
+                $this->userRepository->updateLastLogin($user);
                 return $user;
             }
         }
