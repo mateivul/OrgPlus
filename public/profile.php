@@ -26,6 +26,9 @@ $user = $stmt_user->fetch(PDO::FETCH_ASSOC) ?: [];
 ensure_user_data($user);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
+    if (!isset($_POST['csrf_token']) || !CsrfToken::validateToken($_POST['csrf_token'])) {
+        die('Invalid CSRF token');
+    }
     $name = trim(filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
     $prenume = trim(filter_input(INPUT_POST, 'prenume', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
     $email = trim(filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL));
@@ -350,10 +353,10 @@ $total_days_worked_all_orgs = array_sum(array_column($hours_data, 'days_worked')
                                 $user['email']
                             ) ?>" required>
                         </div>
-                         <div id="formErrorAlert" class="alert alert-danger d-none" role="alert"></div>
+                        <?= CsrfToken::csrfField() ?>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anulează</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
                         <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-2"></i>Salvează Modificările</button>
                     </div>
                 </form>

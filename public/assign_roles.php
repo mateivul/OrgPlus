@@ -27,6 +27,9 @@ if ($has_management_permission) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $has_management_permission) {
+    if (!isset($_POST['csrf_token']) || !CsrfToken::validateToken($_POST['csrf_token'])) {
+        die('Invalid CSRF token');
+    }
     header('Content-Type: application/json');
     $response = ['error' => true, 'message' => 'Acțiune nevalidă sau eroare neașteptată.'];
 
@@ -111,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $has_management_permission) {
                     <h5 class="card-title mb-3">Gestionează Roluri Disponibile</h5>
                     <form method="POST" id="addNewRoleForm" class="row gx-2 gy-2 align-items-end">
                         <input type="hidden" name="action" value="add_new_role">
+                        <?= CsrfToken::csrfField() ?>
                         <div class="col-sm flex-grow-1">
                             <label for="new_role_input" class="form-label small">Nume Rol Nou</label>
                             <input type="text" id="new_role_input" name="new_role" class="form-control form-control-sm" placeholder="Ex: Fotograf, Coordonator..." required>
@@ -165,6 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $has_management_permission) {
 
                     <form method="POST" id="assignRolesForm">
                         <input type="hidden" name="action" value="assign_roles">
+                        <?= CsrfToken::csrfField() ?>
                         <div class="table-responsive">
                             <table class="table table-dark table-striped table-hover align-middle">
                                 <thead class="table-light"> <tr>

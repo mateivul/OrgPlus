@@ -22,6 +22,9 @@ $organization = $organizationService->getOrganizationById($org_id);
 $org_name = $organization ? $organization->name : 'Organizație Necunoscută';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($input['csrf_token']) || !CsrfToken::validateToken($input['csrf_token'])) {
+        die('Invalid CSRF token');
+    }
     header('Content-Type: application/json');
     $response = ['success' => false, 'message' => ''];
 
@@ -98,6 +101,7 @@ $members = $roleRepository->getMembersByOrganization($org_id);
             <div class="card-body">
                 <form id="addHoursForm">
                     <input type="hidden" name="action" value="add_hours">
+                    <?= CsrfToken::csrfField() ?>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label for="memberSelect" class="form-label">Membru</label>
@@ -242,27 +246,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const memberId = this.dataset.memberId;
             const orgId = <?php echo json_encode($org_id); ?>;
             const newStatus = this.dataset.currentStatus === '1' ? '0' : '1';
+            const csrfToken = "<?= CsrfToken::getToken() ?>";
 
             Swal.fire({
                 title: 'Confirmare',
                 text: `Sigur doriți să ${newStatus === '1' ? 'marcați ca activ' : 'marcați ca inactiv'} acest membru?`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Da',
-                cancelButtonText: 'Nu'
+                confirmButtonText: 'Confirmă',
+                cancelButtonText: 'Anulează'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('working_hours.php', { 
+                    fetch('working_hours.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: JSON.stringify({
-                            action: 'toggle_member_status', 
+                            action: 'toggle_member_status',
                             member_id: memberId,
                             org_id: orgId,
-                            new_status: newStatus
+                            new_status: newStatus,
+                            csrf_token: csrfToken
                         })
                     })
                     .then(response => {

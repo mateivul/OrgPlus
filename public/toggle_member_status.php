@@ -10,6 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $input = json_decode(file_get_contents('php://input'), true);
 
+if (!isset($input['csrf_token']) || !CsrfToken::validateToken($input['csrf_token'])) {
+    die('Invalid CSRF token');
+}
+
 if (
     empty($input) ||
     !isset($input['action']) ||

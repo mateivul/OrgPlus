@@ -21,6 +21,9 @@ $is_admin = in_array($user_role, ['admin', 'owner']);
 $response = ['error' => false, 'success' => false, 'message' => '', 'event_id' => 0];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    if (!isset($_POST['csrf_token']) || !CsrfToken::validateToken($_POST['csrf_token'])) {
+        die('Invalid CSRF token');
+    }
     header('Content-Type: application/json');
 
     if ($_POST['action'] === 'create_event' && $is_admin) {
@@ -152,6 +155,7 @@ try {
             <div class="modal-body">
                 <form id="createEventForm">
                     <input type="hidden" name="action" value="create_event">
+                    <?= CsrfToken::csrfField() ?>
                     <div class="mb-3">
                         <label>Nume Eveniment</label>
                         <input type="text" class="form-control" name="event_name" required>
