@@ -73,6 +73,24 @@ try {
 }
 
 $members = $roleRepository->getMembersByOrganization($org_id);
+
+foreach ($members as &$member) {
+    $member['suggested_inactive'] = false;
+    if ($member['last_activity_date']) {
+        $lastActivity = new DateTime($member['last_activity_date']);
+        $ninetyDaysAgo = new DateTime('-90 days');
+        if ($lastActivity < $ninetyDaysAgo) {
+            $member['suggested_inactive'] = true;
+        }
+    } else {
+        $joinDate = new DateTime($member['join_date']);
+        $ninetyDaysAgo = new DateTime('-90 days');
+        if ($joinDate < $ninetyDaysAgo) {
+            $member['suggested_inactive'] = true;
+        }
+    }
+}
+unset($member);
 ?>
 
 <!DOCTYPE html>
@@ -167,6 +185,14 @@ $members = $roleRepository->getMembersByOrganization($org_id);
                                         : 'inactive'; ?>">
                                         <?php echo $member['is_active'] ? 'Activ' : 'Inactiv'; ?>
                                     </span>
+                                    <?php if ($member['is_active'] && $member['suggested_inactive']): ?>
+                                        <i class="fas fa-exclamation-triangle text-warning" 
+                                           title="Acest membru ar putea fi inactiv. Ultima activitate a fost pe <?php echo $member[
+                                               'last_activity_date'
+                                           ] ?? 'N/A'; ?>."
+                                           data-bs-toggle="tooltip" 
+                                           data-bs-placement="top"></i>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <button class="btn btn-sm btn-outline-primary toggle-status-btn"
@@ -190,7 +216,13 @@ $members = $roleRepository->getMembersByOrganization($org_id);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
     const addHoursForm = document.getElementById('addHoursForm');
+    const csrfToken = addHoursForm.querySelector('input[name="csrf_token"]').value;
 
     addHoursForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -246,7 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const memberId = this.dataset.memberId;
             const orgId = <?php echo json_encode($org_id); ?>;
             const newStatus = this.dataset.currentStatus === '1' ? '0' : '1';
-            const csrfToken = "<?= CsrfToken::getToken() ?>";
 
             Swal.fire({
                 title: 'Confirmare',
