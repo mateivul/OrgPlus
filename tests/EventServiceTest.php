@@ -76,6 +76,7 @@ class EventServiceTest extends TestCase
         $event->orgId = $orgId;
         $this->eventRepositoryMock->method('find')->with($eventId)->willReturn($event);
 
+        $this->requestRepositoryMock->expects($this->once())->method('deleteRequestsByEventId')->with($eventId);
         $this->eventRoleRepositoryMock->expects($this->once())->method('deleteAllRolesForEvent')->with($eventId);
         $this->eventRepositoryMock->expects($this->once())->method('deleteAllTasksForEvent')->with($eventId);
         $this->eventRepositoryMock->expects($this->once())->method('delete')->with($eventId, $orgId)->willReturn(true);

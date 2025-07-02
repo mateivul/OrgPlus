@@ -36,15 +36,39 @@ $is_org_admin = in_array($user_role_in_org, ['admin', 'owner']);
 $organization = $organizationRepository->findById($current_org_id);
 $is_event_admin_or_owner = $is_org_admin || ($organization && $user_id === $organization->ownerId);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_event_admin_or_owner && isset($_POST['save_tasks'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_event_admin_or_owner) {
+    if (!isset($_POST['csrf_token']) || !CsrfToken::validateToken($_POST['csrf_token'])) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token.']);
+        exit();
+    }
+
     $response = ['success' => false, 'message' => 'A apărut o eroare neașteptată.'];
 
-    try {
-        $eventService->saveEventTasks($event_id, $user_id, $_POST);
-        $response = ['success' => true, 'message' => 'Sarcinile au fost salvate cu succes!'];
-    } catch (Exception $e) {
-        $response = ['success' => false, 'message' => $e->getMessage()];
-        error_log("Task save error for event $event_id: " . $e->getMessage());
+    if (isset($_POST['save_tasks'])) {
+        try {
+            $eventService->saveEventTasks($event_id, $user_id, $_POST);
+            $response = ['success' => true, 'message' => 'Sarcinile au fost salvate cu succes!'];
+        } catch (Exception $e) {
+            $response = ['success' => false, 'message' => $e->getMessage()];
+            error_log("Task save error for event $event_id: " . $e->getMessage());
+        }
+    } elseif (isset($_POST['delete_event'])) {
+        try {
+            $success = $eventService->deleteEvent($event_id, $current_org_id);
+            if ($success) {
+                $response = [
+                    'success' => true,
+                    'message' => 'Evenimentul a fost șters cu succes!',
+                    'redirect' => 'events.php',
+                ];
+            } else {
+                $response['message'] = 'Evenimentul nu a putut fi șters sau nu a fost găsit.';
+            }
+        } catch (Exception $e) {
+            $response['message'] = $e->getMessage();
+            error_log("Event deletion error for event $event_id: " . $e->getMessage());
+        }
     }
 
     header('Content-Type: application/json');
@@ -81,6 +105,10 @@ foreach ($raw_event_tasks as $task) {
                 <p><strong>Descriere:</strong> <?php echo nl2br(htmlspecialchars($event->description)); ?></p>
                 <p><strong>Data:</strong> <?php echo date('d-m-Y H:i', strtotime($event->date)); ?></p>
                 <p><a href="events.php" class="btn btn-sm btn-outline-light mt-2">&laquo; Înapoi la Evenimente</a></p>
+                <?php if ($is_event_admin_or_owner): ?>
+                    <button id="deleteEventBtn" class="btn btn-danger btn-sm mt-2">Șterge Eveniment</button>
+                    <form id="deleteEventForm" class="d-none"><?= CsrfToken::csrfField() ?></form>
+                <?php endif; ?>
             </div>
 
             <div class="my-evet-card text-light p-3 mb-4 shadow-sm">
@@ -114,6 +142,7 @@ foreach ($raw_event_tasks as $task) {
                     <?php if (!empty($event_participants_with_roles)): ?>
                         <form method="POST" id="manageTasksForm">
                             <input type="hidden" name="save_tasks" value="true">
+                            <?= CsrfToken::csrfField() ?>
                             <table class="table table-striped table-dark">
                                 <thead>
                                     <tr>
@@ -199,6 +228,56 @@ foreach ($raw_event_tasks as $task) {
                         title: 'Eroare!',
                         text: 'A apărut o eroare neașteptată la salvarea sarcinilor.',
                     });
+                });
+            });
+        }
+
+        const deleteBtn = document.getElementById('deleteEventBtn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function() {
+                const csrfToken = document.querySelector('#deleteEventForm input[name="csrf_token"]');
+
+                Swal.fire({
+                    title: 'Ești sigur?',
+                    text: "Vrei să ștergi acest eveniment? Acțiunea este ireversibilă.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Da, șterge!',
+                    cancelButtonText: 'Anulează'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const formData = new FormData();
+                        formData.append('delete_event', 'true');
+                        if (csrfToken) {
+                           formData.append('csrf_token', csrfToken.value);
+                        } else {
+                            Swal.fire('Eroare!', 'CSRF Token not found. Please refresh the page.', 'error');
+                            return;
+                        }
+
+                        fetch('', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Șters!', data.message, 'success').then(() => {
+                                    if (data.redirect) {
+                                        window.location.href = data.redirect;
+                                    }
+                                });
+                            } else {
+                                Swal.fire('Eroare!', data.message, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire('Eroare!', 'A apărut o eroare neașteptată.', 'error');
+                        });
+                    }
                 });
             });
         }

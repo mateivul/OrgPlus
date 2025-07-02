@@ -4,10 +4,10 @@
 $rootDir = dirname(__DIR__);
 
 // 1. Load Composer autoloader if present
-$vendorAutoload = dirname(__DIR__) . '/vendor/autoload.php';
-if (file_exists($vendorAutoload)) {
-    require_once $vendorAutoload;
-}
+// $vendorAutoload = dirname(__DIR__) . '/vendor/autoload.php';
+// if (file_exists($vendorAutoload)) {
+//     require_once $vendorAutoload;
+// }
 
 $_ENV['TEST_DB'] = dirname(__DIR__) . '/tests/test_db.sqlite';
 
@@ -26,7 +26,7 @@ if (!file_exists($sqlDumpPath)) {
     foreach ($queries as $query) {
         if ($query !== '') {
             try {
-                // echo $query;
+                // echo $query; // debug
                 $pdo->exec($query);
             } catch (PDOException $e) {
                 // Ignore errors for CREATE TABLE IF EXISTS etc.

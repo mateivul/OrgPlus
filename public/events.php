@@ -76,6 +76,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit();
     }
 
+    if ($_POST['action'] === 'delete_event' && $is_admin) {
+        $event_id = $_POST['event_id'] ?? 0;
+        if ($event_id > 0) {
+            try {
+                $success = $eventService->deleteEvent($event_id, $org_id);
+                if ($success) {
+                    $response['success'] = true;
+                    $response['message'] = 'Evenimentul a fost șters cu succes.';
+                } else {
+                    $response['error'] = true;
+                    $response['message'] = 'Evenimentul nu a putut fi șters sau nu a fost găsit.';
+                }
+            } catch (Exception $e) {
+                $response['error'] = true;
+                $response['message'] = 'Eroare la ștergerea evenimentului: ' . $e->getMessage();
+                error_log('Event deletion error: ' . $e->getMessage());
+            }
+        } else {
+            $response['error'] = true;
+            $response['message'] = 'ID eveniment invalid.';
+        }
+        echo json_encode($response);
+        exit();
+    }
+
     $response['error'] = true;
     $response['message'] = 'Acțiune invalidă sau permisiuni insuficiente.';
     echo json_encode($response);
@@ -133,6 +158,7 @@ try {
                                 <a href="view_event.php?event_id=<?= $event->id ?>" class="btn btn-info btn-sm">Vezi Detalii</a>
                                 <?php if ($is_admin): ?>
                                     <a href="assign_roles.php?event_id=<?= $event->id ?>" class="btn btn-warning btn-sm">Roluri</a>
+                                    <button class="btn btn-danger btn-sm delete-event-btn" data-event-id="<?= $event->id ?>">Șterge</button>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -212,6 +238,55 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    document.querySelectorAll('.delete-event-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const eventId = this.dataset.eventId;
+            const csrfToken = document.querySelector('#createEventForm input[name="csrf_token"]').value;
+
+            Swal.fire({
+                title: 'Ești sigur?',
+                text: "Această acțiune nu poate fi anulată!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Da, șterge!',
+                cancelButtonText: 'Anulează'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const formData = new FormData();
+                    formData.append('action', 'delete_event');
+                    formData.append('event_id', eventId);
+                    formData.append('csrf_token', csrfToken);
+
+                    fetch('', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(r => {
+                        if (!r.ok) {
+                            throw new Error('Network response was not ok: ' + r.statusText);
+                        }
+                        return r.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Șters!', data.message, 'success').then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire('Eroare!', data.message, 'error');
+                        }
+                    })
+                    .catch(e => {
+                        console.error('Error:', e);
+                        Swal.fire('Eroare!', 'A apărut o eroare la trimiterea cererii: ' + e.message, 'error');
+                    });
+                }
+            });
+        });
+    });
 });
 </script>
 </body>

@@ -247,4 +247,17 @@ class RequestRepository
             return false;
         }
     }
+
+    public function deleteRequestsByEventId(int $eventId): bool
+    {
+        $sql = 'DELETE FROM requests WHERE event_id = :event_id';
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':event_id', $eventId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log('Error deleting requests for event ID ' . $eventId . ': ' . $e->getMessage());
+            return false;
+        }
+    }
 }

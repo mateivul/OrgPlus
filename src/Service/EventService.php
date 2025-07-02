@@ -207,6 +207,8 @@ class EventService
             return false;
         }
 
+        $this->requestRepository->deleteRequestsByEventId($eventId);
+
         $this->eventRoleRepository->deleteAllRolesForEvent($eventId);
 
         $this->eventRepository->deleteAllTasksForEvent($eventId);
