@@ -17,11 +17,9 @@ class WorkedHoursServiceTest extends TestCase
         $this->organizationRepositoryMock = $this->createMock(OrganizationRepository::class);
         $this->roleRepositoryMock = $this->createMock(RoleRepository::class);
 
-        // Mock PDO and PDOStatement to handle transactions
         $this->pdoMock = $this->createMock(PDO::class);
         $this->pdoStatementMock = $this->createMock(PDOStatement::class);
 
-        // Link the mocks
         $this->workedHoursRepositoryMock->method('getPdo')->willReturn($this->pdoMock);
         $this->pdoMock->method('prepare')->willReturn($this->pdoStatementMock);
 

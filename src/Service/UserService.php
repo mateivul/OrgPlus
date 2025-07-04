@@ -15,13 +15,14 @@ class UserService
             return null;
         }
 
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $salt = bin2hex(random_bytes(32));
+        $hashedPassword = hash('sha256', $salt . $password);
         if ($hashedPassword === false) {
             return null;
         }
 
         $currentTime = date('Y-m-d H:i:s');
-        $newUser = new User(null, $firstName, $lastName, $email, $hashedPassword, null, $currentTime, null);
+        $newUser = new User(null, $firstName, $lastName, $email, $hashedPassword, $salt, $currentTime, null);
 
         if ($this->userRepository->save($newUser)) {
             return $newUser;

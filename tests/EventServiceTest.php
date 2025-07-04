@@ -141,7 +141,6 @@ class EventServiceTest extends TestCase
         $eventId = 100;
         $actingUserId = 10;
 
-        // Existing tasks in the DB
         $existingTaskUser11 = new EventTask($eventId, 11, 'Old Description', $actingUserId, 501);
         $existingTaskUser13 = new EventTask($eventId, 13, 'This will be deleted', $actingUserId, 502);
 
@@ -150,25 +149,19 @@ class EventServiceTest extends TestCase
             ->with($eventId)
             ->willReturn([$existingTaskUser11, $existingTaskUser13]);
 
-        // Mocking the check for whether a user is a participant
         $this->eventRoleRepositoryMock->method('isUserAssignedToEventRole')->willReturn(true);
 
-        // Data from the form post
         $postData = [
-            'task_11' => 'Updated Description', // Update existing task for user 11
-            'task_12' => 'New Task Description', // Create new task for user 12
-            'task_13' => '', // Delete existing task for user 13 by providing an empty description
+            'task_11' => 'Updated Description',
+            'task_12' => 'New Task Description',
+            'task_13' => '',
         ];
 
-        // --- Set up expectations ---
-
-        // Expect an update for user 11's task
         $this->eventRepositoryMock
             ->expects($this->once())
             ->method('updateEventTask')
             ->with(501, 'Updated Description', $actingUserId);
 
-        // Expect a new task to be saved for user 12
         $this->eventRepositoryMock
             ->expects($this->once())
             ->method('saveEventTask')
@@ -178,10 +171,8 @@ class EventServiceTest extends TestCase
                 })
             );
 
-        // Expect user 13's task to be deleted
         $this->eventRepositoryMock->expects($this->once())->method('deleteEventTask')->with(502);
 
-        // Execute the service method
         $this->service->saveEventTasks($eventId, $actingUserId, $postData);
     }
 }

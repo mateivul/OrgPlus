@@ -6,7 +6,6 @@ class CsrfTokenTest extends TestCase
 {
     protected function setUp(): void
     {
-        // Start with a clean session for each test
         $_SESSION = [];
     }
 
@@ -52,7 +51,6 @@ class CsrfTokenTest extends TestCase
 
     protected function tearDown(): void
     {
-        // Clean up session after each test
         $_SESSION = [];
     }
 }

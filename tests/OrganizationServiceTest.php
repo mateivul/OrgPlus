@@ -24,13 +24,11 @@ class OrganizationServiceTest extends TestCase
             $this->requestRepositoryMock
         );
 
-        // Mock a generic organization for all tests
         $this->organizationRepositoryMock->method('findById')->willReturn($this->createMock(Organization::class));
     }
 
     public function testGetOrganizationMembers(): void
     {
-        // This is an integration test and needs a real service instance.
         $pdo = Database::getConnection();
         $organizationRepository = new OrganizationRepository($pdo);
         $userRepository = new UserRepository($pdo);
@@ -44,7 +42,6 @@ class OrganizationServiceTest extends TestCase
             $requestRepository
         );
 
-        // Organization with ID 7 has seed data in org_plus.sql
         $members = $service->getOrganizationMembers(7);
         $this->assertNotEmpty($members, 'Organization should have at least one member');
 
@@ -57,14 +54,11 @@ class OrganizationServiceTest extends TestCase
     {
         $orgId = 1;
         $memberUserId = 11;
-        $actingUserId = 10; // Admin or Owner
+        $actingUserId = 10;
 
-        // Acting user has permission
         $this->roleRepositoryMock->method('isUserAdminOrOwner')->with($actingUserId, $orgId)->willReturn(true);
-        // Member to be removed is not the owner
         $this->roleRepositoryMock->method('isUserOwner')->with($memberUserId, $orgId)->willReturn(false);
 
-        // Expect role and requests to be removed
         $this->roleRepositoryMock->expects($this->once())->method('removeRole')->with($memberUserId, $orgId);
         $this->requestRepositoryMock
             ->expects($this->once())
@@ -80,7 +74,6 @@ class OrganizationServiceTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Nu ai permisiuni suficiente pentru a șterge membri.');
 
-        // Acting user does not have permission
         $this->roleRepositoryMock->method('isUserAdminOrOwner')->willReturn(false);
 
         $this->service->removeMember(1, 11, 12);
@@ -95,7 +88,6 @@ class OrganizationServiceTest extends TestCase
         $actingUserId = 10;
 
         $this->roleRepositoryMock->method('isUserAdminOrOwner')->willReturn(true);
-        // Attempting to remove the owner
         $this->roleRepositoryMock->method('isUserOwner')->with($ownerId, 1)->willReturn(true);
 
         $this->service->removeMember(1, $ownerId, $actingUserId);
