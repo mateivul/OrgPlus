@@ -1,6 +1,8 @@
 # OrgPlus - Organization Management Platform
 
-![OrgPlus](https://img.shields.io/badge/Org-Plus-6399ff)
+<p align="center">
+  <b>Org<font color="#6399ff">Plus</font></b>
+</p>
 
 <h3 align="center">Streamline Your Organization's Management, Communication, and Events</h3>
 
