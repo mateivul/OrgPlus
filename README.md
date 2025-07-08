@@ -1,7 +1,7 @@
 # OrgPlus - Organization Management Platform
 
 <p align="center">
-  <img src="https://via.placeholder.com/150/007BFF/FFFFFF?text=OrgPlus" alt="OrgPlus Logo">
+  Org<p style="color:blue">Plus</p>
 </p>
 
 <h3 align="center">Streamline Your Organization's Management, Communication, and Events</h3>
@@ -31,8 +31,8 @@
 
 ## About The Project
 
-[![Product Screenshot][product-screenshot]](https://example.com)
-*(A good place for a screenshot of the main dashboard)*
+<!-- [![Product Screenshot][product-screenshot]](https://example.com) -->
+<img src="screenshots/home.png" alt="-" width="500" height="600">
 
 OrgPlus tackles the universal problem of disorganized teams and chaotic event planning. It provides a clear framework for task and role delegation, removing confusion and empowering every team member with a clear understanding of their duties.
 
@@ -106,7 +106,7 @@ You need a local server environment with PHP, a MySQL database, and Composer. [X
 
 1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/your-username/OrganizareONG.git
+    git clone https://github.com/mateivul/OrganizareONG.git
     cd OrganizareONG
     ```
 
@@ -160,7 +160,8 @@ Once installed, you can start using OrgPlus:
     -   Add worked hours for members.
     -   Assign specific tasks to participants in an event.
 
-*(This is another great place for a screenshot showing off the user flow, like the events page or member management.)*
+<img src="screenshots/dashboard.png" alt="-" width="500" height="600">
+<img src="screenshots/events.png" alt="-" width="500" height="600">
 
 ---
 
@@ -206,7 +207,7 @@ OrgPlus has significant potential for growth. Here are some of the features plan
 -   [ ] **Advanced Reporting Modules**: Develop more detailed and customizable reports on organization activity.
 -   [ ] **External Calendar Integration**: Add the ability to sync OrgPlus events with Google Calendar or Outlook Calendar.
 
-See the [open issues](https://github.com/your-username/OrganizareONG/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/mateivul/OrganizareONG/issues) for a full list of proposed features (and known issues).
 
 ---
 
@@ -214,8 +215,8 @@ See the [open issues](https://github.com/your-username/OrganizareONG/issues) for
 
 **Vultur Matei**
 
--   GitHub: [your-github-profile](https://github.com/your-username)
--   Project Repository: [https://github.com/your-username/OrganizareONG](https://github.com/your-username/OrganizareONG)
+-   GitHub: [your-github-profile](https://github.com/mateivul)
+-   Project Repository: [https://github.com/mateivul/OrganizareONG](https://github.com/mateivul/OrganizareONG)
 
 ---
 

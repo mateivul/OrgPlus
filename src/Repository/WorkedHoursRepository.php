@@ -69,8 +69,7 @@ class WorkedHoursRepository
                 $data['id'],
                 null,
                 null,
-                $data['recorded_at'],
-                $data['events_participated'] ?? null
+                $data['recorded_at']
             );
             $workedHour->user_name = isset($data['user_name']) ? $data['user_name'] : '';
             $workedHour->user_prenume = isset($data['user_prenume']) ? $data['user_prenume'] : '';
