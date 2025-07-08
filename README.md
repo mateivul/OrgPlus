@@ -1,8 +1,6 @@
 # OrgPlus - Organization Management Platform
 
-<p align="center">
-  Org<span style="color:#6399ff">Plus</span>
-</p>
+![OrgPlus](https://img.shields.io/badge/Org-Plus-6399ff)
 
 <h3 align="center">Streamline Your Organization's Management, Communication, and Events</h3>
 
@@ -207,7 +205,7 @@ OrgPlus has significant potential for growth. Here are some of the features plan
 -   [ ] **Advanced Reporting Modules**: Develop more detailed and customizable reports on organization activity.
 -   [ ] **External Calendar Integration**: Add the ability to sync OrgPlus events with Google Calendar or Outlook Calendar.
 
-See the [open issues](https://github.com/mateivul/OrganizareONG/issues) for a full list of proposed features (and known issues).
+<!-- See the [open issues](https://github.com/mateivul/OrganizareONG/issues) for a full list of proposed features (and known issues). -->
 
 ---
 
