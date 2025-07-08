@@ -83,21 +83,7 @@ class WorkedHoursService
 
     public function getMembersWithContribution(int $orgId): array
     {
-        $membersData = $this->roleRepository->getOrganizationMembersWithRolesAndContribution($orgId);
-
-        $totalEvents = getService('EventService')->getEventsForOrganization($orgId);
-        $totalEventsCount = is_array($totalEvents) ? count($totalEvents) : (int) $totalEvents;
-
-        foreach ($membersData as &$member) {
-            $member['events_participated'] = 0;
-            $member['total_events'] = $totalEventsCount;
-
-            $member['is_active'] =
-                ($member['is_active'] && $member['events_participated'] >= $member['total_events'] * 0.5) ||
-                $member['total_contribution_hours'] >= 20;
-        }
-
-        return $membersData;
+        return $this->roleRepository->getOrganizationMembersWithRolesAndContribution($orgId);
     }
 
     public function getWorkedHoursForOrganization(int $orgId): array

@@ -78,7 +78,7 @@ class EventRepository
 
     public function findByOrgId(int $orgId): array
     {
-        $sql = 'SELECT * FROM events WHERE org_id = :org_id ORDER BY date ASC';
+        $sql = 'SELECT * FROM events WHERE org_id = :org_id ORDER BY date DESC';
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':org_id', $orgId, PDO::PARAM_INT);
@@ -258,6 +258,39 @@ class EventRepository
             return $stmt->execute();
         } catch (\PDOException $e) {
             error_log('Error updating available roles for event: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function countEventsParticipatedByUserInOrganization(int $userId, int $orgId): int
+    {
+        $sql = "SELECT COUNT(DISTINCT ep.event_id)
+                FROM event_participants ep
+                JOIN events e ON ep.event_id = e.id
+                WHERE ep.user_id = :user_id AND e.org_id = :org_id";
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':org_id', $orgId, PDO::PARAM_INT);
+            $stmt->execute();
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            error_log(
+                'Error counting events for user ' . $userId . ' in organization ' . $orgId . ': ' . $e->getMessage()
+            );
+            return 0;
+        }
+    }
+
+    public function deleteAllParticipantsForEvent(int $eventId): bool
+    {
+        $sql = 'DELETE FROM event_participants WHERE event_id = :event_id';
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':event_id', $eventId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log('Error deleting all participants for event: ' . $e->getMessage());
             return false;
         }
     }

@@ -26,8 +26,12 @@ class RoleRepository
                 u.prenume,
                 r.role,
                 r.role AS role_name,
-                r.total_contribution_hours,
-                r.is_active
+                IFNULL((SELECT SUM(wh.hours) FROM worked_hours wh WHERE wh.user_id = u.id AND wh.org_id = r.org_id), 0) as total_contribution_hours,
+                r.is_active,
+                r.join_date,
+                (SELECT COUNT(DISTINCT e.id) FROM events e WHERE e.org_id = r.org_id) as total_events,
+                (SELECT COUNT(DISTINCT er.event_id) FROM event_roles er JOIN events e ON er.event_id = e.id WHERE er.user_id = u.id AND e.org_id = r.org_id) as events_participated,
+                (SELECT MAX(wh.work_date) FROM worked_hours wh WHERE wh.user_id = u.id AND wh.org_id = r.org_id) as last_activity_date
             FROM roles r
             JOIN users u ON u.id = r.user_id
             WHERE r.org_id = :orgId";
@@ -186,6 +190,20 @@ class RoleRepository
         $stmt->bindValue(':org_id_sub', $orgId, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getLastActivityDate(int $userId, int $orgId): ?string
+    {
+        $sql = 'SELECT MAX(work_date) FROM worked_hours WHERE user_id = :user_id AND org_id = :org_id';
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(['user_id' => $userId, 'org_id' => $orgId]);
+            $result = $stmt->fetchColumn();
+            return $result ?: null;
+        } catch (PDOException $e) {
+            error_log('Error getting last activity date: ' . $e->getMessage());
+            return null;
+        }
     }
 
     public function updateMemberStatus(int $memberId, int $orgId, int $newStatus): bool

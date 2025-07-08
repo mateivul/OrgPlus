@@ -67,30 +67,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 try {
     $membersData = $workedHoursService->getMembersWithContribution($org_id);
+    foreach ($membersData as &$member) {
+        $member['suggested_inactive'] = false;
+        if ($member['last_activity_date']) {
+            $lastActivity = new DateTime($member['last_activity_date']);
+            $ninetyDaysAgo = new DateTime('-90 days');
+            if ($lastActivity < $ninetyDaysAgo) {
+                $member['suggested_inactive'] = true;
+            }
+        } else {
+            $joinDate = new DateTime($member['join_date']);
+            $ninetyDaysAgo = new DateTime('-90 days');
+            if ($joinDate < $ninetyDaysAgo) {
+                $member['suggested_inactive'] = true;
+            }
+        }
+    }
+    unset($member);
 } catch (Exception $e) {
     error_log('Error fetching members for worked hours page: ' . $e->getMessage());
     $membersData = [];
 }
-
-$members = $roleRepository->getMembersByOrganization($org_id);
-
-foreach ($members as &$member) {
-    $member['suggested_inactive'] = false;
-    if ($member['last_activity_date']) {
-        $lastActivity = new DateTime($member['last_activity_date']);
-        $ninetyDaysAgo = new DateTime('-90 days');
-        if ($lastActivity < $ninetyDaysAgo) {
-            $member['suggested_inactive'] = true;
-        }
-    } else {
-        $joinDate = new DateTime($member['join_date']);
-        $ninetyDaysAgo = new DateTime('-90 days');
-        if ($joinDate < $ninetyDaysAgo) {
-            $member['suggested_inactive'] = true;
-        }
-    }
-}
-unset($member);
 ?>
 
 <!DOCTYPE html>
@@ -172,7 +169,7 @@ unset($member);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($members as $member): ?>
+                        <?php foreach ($membersData as $member): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($member['name'] . ' ' . $member['prenume']); ?></td>
                                 <td><?php echo role_to_readable($member['role']); ?></td>
@@ -196,12 +193,12 @@ unset($member);
                                 </td>
                                 <td>
                                     <button class="btn btn-sm btn-outline-primary toggle-status-btn"
-                                            data-member-id="<?php echo $member['user_id']; ?>"
+                                            data-member-id="<?php echo $member['id']; ?>"
                                             data-current-status="<?php echo $member['is_active'] ? '1' : '0'; ?>">
                                         <?php echo $member['is_active'] ? 'Marchează Inactiv' : 'Marchează Activ'; ?>
                                     </button>
                                     <a href="member_hours.php?user_id=<?php echo $member[
-                                        'user_id'
+                                        'id'
                                     ]; ?>&org_id=<?php echo $org_id; ?>"
                                        class="btn btn-sm btn-outline-info">Detalii ore</a>
                                 </td>

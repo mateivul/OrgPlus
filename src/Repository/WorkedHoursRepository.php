@@ -67,8 +67,10 @@ class WorkedHoursRepository
                 $data['description'],
                 array_key_exists('status', $data) && $data['status'] !== null ? (string) $data['status'] : '',
                 $data['id'],
-                array_key_exists('created_at', $data) && $data['created_at'] !== null ? $data['created_at'] : '',
-                array_key_exists('updated_at', $data) && $data['updated_at'] !== null ? $data['updated_at'] : ''
+                null,
+                null,
+                $data['recorded_at'],
+                $data['events_participated'] ?? null
             );
             $workedHour->user_name = isset($data['user_name']) ? $data['user_name'] : '';
             $workedHour->user_prenume = isset($data['user_prenume']) ? $data['user_prenume'] : '';
@@ -106,9 +108,9 @@ class WorkedHoursRepository
                 $data['description'],
                 array_key_exists('status', $data) && $data['status'] !== null ? (string) $data['status'] : '',
                 $data['id'],
-                array_key_exists('created_at', $data) && $data['created_at'] !== null ? $data['created_at'] : '',
-                array_key_exists('updated_at', $data) && $data['updated_at'] !== null ? $data['updated_at'] : '',
-                array_key_exists('recorded_at', $data) && $data['recorded_at'] !== null ? $data['recorded_at'] : ''
+                null, // created_at is not in the worked_hours table
+                null, // updated_at is not in the worked_hours table
+                $data['recorded_at']
             );
             $workedHour->user_name = isset($data['user_name']) ? $data['user_name'] : '';
             $workedHour->user_prenume = isset($data['user_prenume']) ? $data['user_prenume'] : '';

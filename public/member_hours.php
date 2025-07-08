@@ -75,56 +75,16 @@ $hours = $workedHoursService->getWorkedHoursForUserInOrganization($member_id, $o
                         <?php foreach ($hours as $row): ?>
         <tr>
             <td>
-                <?php
-                $work_date = null;
-                if (is_object($row)) {
-                    if (property_exists($row, 'work_date')) {
-                        $work_date = $row->work_date;
-                    }
-                } else {
-                    $work_date = $row['work_date'] ?? null;
-                }
-                echo htmlspecialchars($work_date ?? '-');
-                ?>
+                <?= htmlspecialchars($row->workDate ?? '-') ?>
             </td>
             <td>
-                <?php
-                $hours_val = null;
-                if (is_object($row)) {
-                    if (property_exists($row, 'hours')) {
-                        $hours_val = $row->hours;
-                    }
-                } else {
-                    $hours_val = $row['hours'] ?? null;
-                }
-                echo number_format($hours_val ?? 0, 1);
-                ?>
+                <?= number_format($row->hours ?? 0, 1) ?>
             </td>
             <td>
-                <?php
-                $desc = null;
-                if (is_object($row)) {
-                    if (property_exists($row, 'description')) {
-                        $desc = $row->description;
-                    }
-                } else {
-                    $desc = $row['description'] ?? null;
-                }
-                echo htmlspecialchars($desc ?? '-');
-                ?>
+                <?= htmlspecialchars($row->description ?? '-') ?>
             </td>
             <td>
-                <?php
-                $recorded = null;
-                if (is_object($row)) {
-                    if (property_exists($row, 'recorded_at')) {
-                        $recorded = $row->recorded_at;
-                    }
-                } else {
-                    $recorded = $row['recorded_at'] ?? null;
-                }
-                echo htmlspecialchars($recorded ?? '-');
-                ?>
+                <?= htmlspecialchars($row->recorded_at ?? '-') ?>
             </td>
         </tr>
     <?php endforeach; ?>
