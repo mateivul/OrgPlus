@@ -1,8 +1,8 @@
 # OrgPlus - Organization Management Platform
 
-<p align="center">
+<span align="center">
   <b>Org<font color="#6399ff">Plus</font></b>
-</p>
+</span>
 
 <h3 align="center">Streamline Your Organization's Management, Communication, and Events</h3>
 
@@ -215,7 +215,7 @@ OrgPlus has significant potential for growth. Here are some of the features plan
 
 **Vultur Matei**
 
--   GitHub: [your-github-profile](https://github.com/mateivul)
+-   GitHub: [My-github-profile](https://github.com/mateivul)
 -   Project Repository: [https://github.com/mateivul/OrganizareONG](https://github.com/mateivul/OrganizareONG)
 
 ---
