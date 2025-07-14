@@ -1,9 +1,9 @@
 # OrgPlus - Organization Management Platform
-
-<span align="center">
-  <b>Org<font color="#6399ff">Plus</font></b>
-</span>
-
+<p align="center">
+    <span>
+        <b>Org<font color="#6399ff">Plus</font></b>
+    </span>
+</P>
 <h3 align="center">Streamline Your Organization's Management, Communication, and Events</h3>
 
 <p align="center">
