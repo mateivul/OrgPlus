@@ -1,0 +1,26 @@
+
+.text-primary, .form-label, .card-title {
+    color: #191919;
+}
+.text-primary, .form-label, .btn-primary, .link-underline {
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    padding: 24px;
+}
+
+.card {
+    border-radius: 15px;
+}
+
+.logo.login {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 36px;
+}
