@@ -22,15 +22,34 @@ $organization = $organizationService->getOrganizationById($org_id);
 $org_name = $organization ? $organization->name : 'Organizație Necunoscută';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($input['csrf_token']) || !CsrfToken::validateToken($input['csrf_token'])) {
-        die('Invalid CSRF token');
-    }
     header('Content-Type: application/json');
     $response = ['success' => false, 'message' => ''];
 
-    $input = json_decode(file_get_contents('php://input'), true);
+    if (isset($_POST['action']) && $_POST['action'] === 'add_hours' && $is_admin) {
+        if (!isset($_POST['csrf_token']) || !CsrfToken::validateToken($_POST['csrf_token'])) {
+            $response['message'] = 'Invalid CSRF token.';
+            echo json_encode($response);
+            exit();
+        }
 
+        $member_id = intval($_POST['member_id'] ?? 0);
+        $hours = floatval($_POST['hours'] ?? 0);
+        $work_date = $_POST['work_date'] ?? '';
+        $description = $_POST['description'] ?? '';
+
+        $result = $workedHoursService->addWorkedHours($member_id, $org_id, $hours, $work_date, $user_id, $description);
+        echo json_encode($result);
+        exit();
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true);
     if (isset($input['action']) && $input['action'] === 'toggle_member_status' && $is_admin) {
+        if (!isset($input['csrf_token']) || !CsrfToken::validateToken($input['csrf_token'])) {
+            $response['message'] = 'Invalid CSRF token.';
+            echo json_encode($response);
+            exit();
+        }
+
         $memberId = (int) ($input['member_id'] ?? 0);
         $newStatus = (int) ($input['new_status'] ?? 0);
 
@@ -49,18 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    if (isset($_POST['action']) && $_POST['action'] === 'add_hours' && $is_admin) {
-        $member_id = intval($_POST['member_id'] ?? 0);
-        $hours = floatval($_POST['hours'] ?? 0);
-        $work_date = $_POST['work_date'] ?? '';
-        $description = $_POST['description'] ?? '';
-
-        $result = $workedHoursService->addWorkedHours($member_id, $org_id, $hours, $work_date, $user_id, $description);
-        $response = $result;
-    } else {
-        $response['message'] = 'Acțiune invalidă sau permisiuni insuficiente.';
-    }
-
+    $response['message'] = 'Acțiune invalidă sau permisiuni insuficiente.';
     echo json_encode($response);
     exit();
 }
